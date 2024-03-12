@@ -6,13 +6,19 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>');
-});
+var clients = {};
 
 io.on('connection', (socket) => {
     console.log(`User ${socket.id} connected`);
+    clients[socket.id] = {};
+    clients[socket.id].typedText = "";
     socket.emit('foo', 'Hello from server');
+
+    socket.on('input', (typedText, callback) => {
+      console.log('Received:', typedText);
+      clients[socket.id].typedText = typedText;
+        callback(clients[socket.id].typedText);
+    });
   });
 
 
