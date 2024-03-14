@@ -20,10 +20,26 @@ io.on('connection', (socket) => {
       updateClients();
     });
 
+    socket.on('join-room', (roomName, setError) => {
+      if (roomName.trim().length() === 0) return setError("Room name is required");
+      for (room in socket.rooms) {
+        socket.leave(room);
+      }
+      socket.join(roomName);
+    });
+
     socket.on('disconnect', () => {
       console.log(`User ${socket.id} disconnected`);
       delete clients[socket.id];
     });
+  });
+
+  io.of("/").adapter.on("create-room", (room) => {
+    console.log(`room ${room} was created`);
+  });
+
+  io.of("/").adapter.on("join-room", (room, id) => {
+    console.log(`socket ${id} has joined room ${room}`);
   });
 
 

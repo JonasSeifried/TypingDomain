@@ -43,7 +43,7 @@ onBeforeUnmount(() => {
         :max="state.activeText.length"
         :value="client.typedText.length"
       >
-        {{ client.typedText.length / state.activeText.length }}
+        {{ client.typedText.length / state.activeText.length }}%
       </progress>
     </div>
   </div>
