@@ -20,10 +20,11 @@ io.on('connection', (socket) => {
       updateClients();
     });
 
-    socket.on('joinRoom', (roomName: string, setError) => {
-      if (roomName.trim().length === 0) return setError("Room name is required");
+    socket.on('joinRoom', (roomName: string, callback) => {
+      if (roomName.trim().length === 0) return callback("Room name is required");
       socket.rooms.forEach((room) => { socket.leave(room); });
       socket.join(roomName);
+      callback(undefined);
     });
 
     socket.on('disconnect', () => {

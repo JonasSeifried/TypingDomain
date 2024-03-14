@@ -6,8 +6,7 @@ const validatingError = ref('')
 const roomId = ref('')
 
 function joinRoom() {
-  console.log(socket)
-  if (!vailidateRoomName(roomId.value)) return
+  if (!vailidateRoomId(roomId.value)) return
   socket.emit('joinRoom', roomId.value, (err) => {
     if (err) {
       validatingError.value = err
@@ -17,7 +16,7 @@ function joinRoom() {
   })
 }
 
-function vailidateRoomName(roomName: string) {
+function vailidateRoomId(roomName: string) {
   if (roomName === '') {
     validatingError.value = 'Room id cannot be empty'
     return false
@@ -37,7 +36,7 @@ function vailidateRoomName(roomName: string) {
       placeholder="Room Id"
       v-model="roomId"
     />
-    <button class="room-button" @click="joinRoom" :disabled="roomId !== ''">Join Room</button>
+    <button class="room-button" @click="joinRoom" :disabled="roomId === ''">Join Room</button>
   </div>
 </template>
 

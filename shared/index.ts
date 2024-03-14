@@ -10,6 +10,6 @@ export type ServerToCLientEvents = {
 }
 
 export type ClientToServerEvents = {
-  joinRoom: (roomId: string, callback: (err: string) => void) => void;
+  joinRoom: (roomId: string, callback: (err: string | undefined) => void) => void;
   textFieldInput: (text: string) => void;
 }
