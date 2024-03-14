@@ -1,5 +1,5 @@
-<script setup>
-import { socket } from '@/socket'
+<script setup lang="ts">
+import { socket } from '@/socket.ts'
 import { ref } from 'vue'
 
 const validatingError = ref('test')
@@ -17,7 +17,7 @@ function joinRoom() {
   })
 }
 
-function vailidateRoomName(roomName) {
+function vailidateRoomName(roomName: string) {
   if (roomName === '') {
     validatingError.value = 'Room name cannot be empty'
     return false

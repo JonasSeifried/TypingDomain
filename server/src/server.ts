@@ -1,16 +1,12 @@
 import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
+import { Clients } from "shared";
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
-interface Clients {
-  [id: string]: {
-    typedText: string;
-  };
-}
 var clients: Clients = {};
 
 io.on('connection', (socket) => {
@@ -24,8 +20,8 @@ io.on('connection', (socket) => {
       updateClients();
     });
 
-    socket.on('join-room', (roomName, setError) => {
-      if (roomName.trim().length() === 0) return setError("Room name is required");
+    socket.on('join-room', (roomName: string, setError) => {
+      if (roomName.trim().length === 0) return setError("Room name is required");
       socket.rooms.forEach((room) => { socket.leave(room); });
       socket.join(roomName);
     });
@@ -36,19 +32,21 @@ io.on('connection', (socket) => {
     });
   });
 
-  io.of("/").adapter.on("create-room", (room) => {
-    console.log(`room ${room} was created`);
-  });
+io.of("/").adapter.on("create-room", (room) => {
+  console.log(`room ${room} was created`);
+});
 
-  io.of("/").adapter.on("join-room", (room, id) => {
-    console.log(`socket ${id} has joined room ${room}`);
-  });
+io.of("/").adapter.on("join-room", (room, id) => {
+  console.log(`User ${id} has joined room ${room}`);
+});
 
+io.of("/").adapter.on("leave-room", (room, id) => {
+  console.log(`User ${id} has left room ${room}`);
+});
 
 server.listen(3000, () => {
   console.log('server running at http://localhost:3000');
 });
-
 
 function updateClients() {
   io.emit('clientConnected', clients);

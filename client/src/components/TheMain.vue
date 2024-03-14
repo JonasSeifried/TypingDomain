@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { socket, state } from '@/socket'
+import { socket, state } from 'socket.io-client'
 
 const hiddenInputField = ref(null)
 const typedText = ref('')

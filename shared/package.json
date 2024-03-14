@@ -1,0 +1,11 @@
+{
+  "name": "shared",
+  "main": "index.ts",
+  "version": "1.0.0",
+  "description": "Shared code for typing-domain",
+  "author": "Jonas Seifried",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.4.2"
+  }
+}
