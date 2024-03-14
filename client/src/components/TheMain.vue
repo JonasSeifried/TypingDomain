@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { socket, state } from 'socket.io-client'
+import { socket, state } from '@/socket'
 
-const hiddenInputField = ref(null)
-const typedText = ref('')
-var lastInputEmited = null
+const hiddenInputField = ref<HTMLInputElement | null>(null)
+const typedText = ref<string>('')
+var lastInputEmited: string | null = null
 
 function onInput() {
   if (lastInputEmited === typedText.value) return
-  socket.emit('input', typedText.value)
+  socket.emit('textFieldInput', typedText.value)
   lastInputEmited = typedText.value
 }
 
@@ -17,7 +17,7 @@ function onWindowClick() {
   hiddenInputField.value.focus()
 }
 
-const letterClass = (letter, index) => {
+function letterClass(letter: string, index: number): string {
   if (typedText.value.length <= index) return 'white_letter'
   return letter === typedText.value[index] ? 'green_letter' : 'red_letter'
 }
@@ -34,16 +34,16 @@ onBeforeUnmount(() => {
 <template>
   <h1 class="m-5 text-2xl text-white">Typing Domain</h1>
   <div id="slider-div" class="flex flex-col w-1/2">
-    <div v-for="(client, id) in state.clients" :key="client" class="m-2">
+    <div v-for="(client, id) in state.clients" :key="id" class="m-2">
       <label :for="id + '-slider'" class="mr-4">ClientId: {{ id }}</label>
       <progress
         class="w-full h-4 rounded-lg dark:bg-gray-700"
         :id="id + '-slider'"
         type="range"
-        :max="state.activeText.length"
+        :max="state.activeText?.length ?? 1"
         :value="client.typedText.length"
       >
-        {{ client.typedText.length / state.activeText.length }}%
+        {{ state.activeText ? client.typedText.length / state.activeText?.length : 0 }}%
       </progress>
     </div>
   </div>

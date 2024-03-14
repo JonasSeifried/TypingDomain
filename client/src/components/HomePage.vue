@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { socket } from '@/socket.ts'
+import { socket } from '@/socket'
 import { ref } from 'vue'
 
-const validatingError = ref('test')
-const roomName = ref('')
+const validatingError = ref('')
+const roomId = ref('')
 
 function joinRoom() {
   console.log(socket)
-  if (!vailidateRoomName(roomName.value)) return
-  socket.emit('join-room', roomName.value, (err) => {
+  if (!vailidateRoomName(roomId.value)) return
+  socket.emit('joinRoom', roomId.value, (err) => {
     if (err) {
       validatingError.value = err
       return
     }
-    console.log('Joined room:', roomName.value)
+    console.log('Joined room:', roomId.value)
   })
 }
 
 function vailidateRoomName(roomName: string) {
   if (roomName === '') {
-    validatingError.value = 'Room name cannot be empty'
+    validatingError.value = 'Room id cannot be empty'
     return false
   }
   return true
@@ -30,14 +30,14 @@ function vailidateRoomName(roomName: string) {
   <h1 class="text-6xl m-8">Typing Domain</h1>
   <div class="flex flex-col w-1/2 h-96 bg-zinc-800 rounded-lg items-center">
     <h2 class="text-2xl m-4">Join or Create a Room</h2>
-    <p id="error-text" :hidden="!validatingError">{{ validatingError }}</p>
+    <p id="error-text" :hidden="!validatingError" class="text-red-500">{{ validatingError }}</p>
     <input
       class="w-1/2 p-2 m-2 rounded-lg text-black"
       type="text"
-      placeholder="Room Name"
-      v-model="roomName"
+      placeholder="Room Id"
+      v-model="roomId"
     />
-    <button class="room-button" @click="joinRoom" :disabled="roomName === ''">Join Room</button>
+    <button class="room-button" @click="joinRoom" :disabled="roomId !== ''">Join Room</button>
   </div>
 </template>
 
