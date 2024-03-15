@@ -34,8 +34,8 @@ onBeforeUnmount(() => {
 <template>
   <h1 class="m-5 text-2xl text-white">Typing Domain</h1>
   <div id="slider-div" class="flex flex-col w-1/2">
-    <div v-for="(client, id) in state.clients" :key="id" class="m-2">
-      <label :for="id + '-slider'" class="mr-4">ClientId: {{ id }}</label>
+    <div v-for="(client, id) in state.clientsInRoom" :key="id" class="m-2">
+      <label :for="id + '-slider'" class="mr-4">{{ client.playerName }}</label>
       <progress
         class="w-full h-4 rounded-lg dark:bg-gray-700"
         :id="id + '-slider'"
