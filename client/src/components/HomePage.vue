@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { socket, state } from '@/socket'
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const validatingError = ref('')
 const roomId = ref('')
 const playerName = ref('')
+const router = useRouter()
 
 function joinRoom() {
   if (!validate()) return
@@ -14,6 +16,7 @@ function joinRoom() {
       return
     }
     state.joinedRoom = roomId.value
+    router.push(`/ffa/${roomId.value}`)
     console.log('Joined room:', roomId.value)
   })
 }
@@ -26,7 +29,6 @@ function validate() {
   return true
 }
 onMounted(() => {
-  console.log('Socket id:', socket.id)
   roomId.value = socket.id!
 })
 </script>
@@ -56,24 +58,3 @@ onMounted(() => {
     <button class="room-button" @click="joinRoom" :disabled="roomId === ''">Join Room</button>
   </div>
 </template>
-
-<style scoped>
-.room-button {
-  width: 10rem;
-  padding: 0.5rem;
-  margin: 0.25rem;
-  background-color: white;
-  border: 3px solid lightgreen;
-  border-radius: 0.25rem;
-  color: black;
-}
-.room-button:hover:not(:disabled) {
-  border-color: white;
-  background-color: lightgreen;
-  scale: 1.05;
-}
-.room-button:disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-}
-</style>

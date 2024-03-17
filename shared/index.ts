@@ -1,12 +1,13 @@
 export type SocketId = string
 export type ClientData = {
-    playerName: string | null;
+    socketId: SocketId;
+    playerName: string;
     typedText: string;
 }
 
 
 export type SocketData = {
-  playerName: string | null;
+  playerName: string;
   typedText: string;
   joinedRoom: string | null;
 }

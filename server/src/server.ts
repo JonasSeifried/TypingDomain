@@ -47,10 +47,10 @@ server.listen(3000, () => {
   console.log('server running at http://localhost:3000');
 });
 
-function notifyClients(socket: Socket) {
+function notifyClients(socket: Socket<ClientToServerEvents, ServerToCLientEvents, {}, SocketData>) {
   const room = socket.data.joinedRoom;
   const socketsConnectedToRoom = io.sockets.adapter.rooms.get(room);
-  const clients: SocketData[] = Array.from(socketsConnectedToRoom).map((id) => io.sockets.sockets.get(id).data);
-  const clientData: ClientData[] = clients.map((client) => ({ playerName: client.playerName, typedText: client.typedText }));
+  const sockets: Socket[] = Array.from(socketsConnectedToRoom).map((id) => io.sockets.sockets.get(id));
+  const clientData: ClientData[] = sockets.map((socket) => ({ socketId: socket.id, playerName: socket.data.playerName, typedText: socket.data.typedText }));
   io.to(room).emit('clientConnectedToSameRoom', clientData);
 }
