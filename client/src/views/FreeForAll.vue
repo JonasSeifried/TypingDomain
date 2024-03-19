@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { socket, state } from '@/socket'
-import ModalTemplate from './ModalTemplate.vue'
+import ModalTemplate from '@/components/ModalTemplate.vue'
 
 const hiddenInputField = ref<HTMLInputElement | null>(null)
 const typedText = ref<string>('')
@@ -28,6 +28,16 @@ function letterClass(letter: string, index: number): string {
   return letter === typedText.value[index] ? 'green_letter' : 'red_letter'
 }
 
+function buildPlayerName(playerName: string, socketId: string): string {
+  if (socketId === socket.id) return playerName + ' (You)'
+  return playerName
+}
+
+function progressValue(typedText: string) {
+  if (!state.activeText) return 0
+  return typedText.length / state.activeText.length
+}
+
 function joinRoom() {
   if (playerName.value === '') return
   socket.emit('joinRoom', roomId, playerName.value, (err) => {
@@ -41,12 +51,12 @@ function joinRoom() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center mx-10" :onClick="onDivClick">
+  <div class="flex flex-col items-center mx-10 h-[100vh]" :onClick="onDivClick">
     <h1 class="m-5 text-2xl text-white">Typing Domain</h1>
     <div v-if="state.joinedRoom" id="slider-div" class="flex flex-col w-1/2">
       <div v-for="client in state.clientsInRoom" :key="client.socketId" class="m-2">
         <label :for="client.socketId + '-slider'" class="mr-4">{{
-          client.playerName + (client.socketId === socket.id ? ' (You)' : '')
+          buildPlayerName(client.playerName, client.socketId)
         }}</label>
         <progress
           class="w-full h-4 rounded-lg dark:bg-gray-700"
@@ -55,7 +65,7 @@ function joinRoom() {
           :max="state.activeText?.length ?? 1"
           :value="client.typedText.length"
         >
-          {{ state.activeText ? client.typedText.length / state.activeText?.length : 0 }}%
+          {{ progressValue(client.typedText) }}%
         </progress>
       </div>
     </div>

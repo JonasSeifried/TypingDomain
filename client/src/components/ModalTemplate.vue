@@ -2,9 +2,9 @@
 import { computed } from 'vue'
 
 type Props = {
-  bgBlur: boolean
-  bgClass: string
-  modalClass: string
+  bgBlur?: boolean
+  bgClass?: string
+  modalClass?: string
 }
 const props = withDefaults(defineProps<Props>(), {
   bgBlur: true,

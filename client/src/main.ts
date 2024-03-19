@@ -3,8 +3,8 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import HomePage from './components/HomePage.vue'
-import TheMain from './components/TheMain.vue'
+import HomePage from './views/HomePage.vue'
+import TheMain from './views/FreeForAll.vue'
 
 const routes = [
     { path: '/', component: HomePage },
