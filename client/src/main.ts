@@ -1,22 +1,12 @@
 import './assets/main.css'
 
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import HomePage from './views/HomePage.vue'
-import TheMain from './views/FreeForAll.vue'
+import { createPinia } from 'pinia'
+import { router } from './router'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-const routes = [
-    { path: '/', component: HomePage },
-    { path: '/room/:roomId', component: TheMain }
-]
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
-const router = createRouter({
-    history: createWebHistory(),
-    routes,
-})
-
-
-
-
-createApp(App).use(router).mount('#app')
+createApp(App).use(router).use(pinia).mount('#app')

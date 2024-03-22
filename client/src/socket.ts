@@ -1,36 +1,16 @@
-import { reactive } from "vue";
-import { io, Socket } from "socket.io-client";
-import type { ClientData, ClientToServerEvents, ServerToCLientEvents } from "shared"
-
-type State = {
-  connected: boolean;
-  activeText: string | null;
-  joinedRoom: string | null;
-  clientsInRoom: ClientData[];
-};
-
-export const state = reactive<State>({
-  connected: false,
-  activeText: null,
-  joinedRoom: null,
-  clientsInRoom: [],
-});
+import { io, Socket } from 'socket.io-client'
+import type { ClientToServerEvents, ServerToCLientEvents } from 'shared'
+import { useConnectionStore } from './stores/connection'
+import { useRoomStore } from './stores/room'
 
 // "undefined" means the URL will be computed from the `window.location` object
-export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> = process.env.NODE_ENV === "production" ? io(undefined) : io("http://localhost:3000");
+const URL = process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3000'
+export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> = io(URL!, {
+    autoConnect: false
+})
 
-socket.on("connect", () => {
-  state.connected = true;
-});
-
-socket.on("disconnect", () => {
-  state.connected = false;
-});
-
-socket.on("startRound", (text) => {
-  state.activeText = text;
-});
-
-socket.on("clientConnectedToSameRoom", (clients) => {
-  state.clientsInRoom = clients;
-});
+export function bindEvents() {
+    useConnectionStore().bindEvents()
+    useRoomStore().bindEvents()
+    console.log('Events bound')
+}

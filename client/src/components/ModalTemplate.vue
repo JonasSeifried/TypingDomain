@@ -13,11 +13,10 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const buildBgClass = computed(() => {
-  let c =
+  let classes =
     'flex items-center justify-center fixed z-20 bottom-0 top-0 left-0 right-0 bg-[rgba(0,0,0,0.33)]'
-  if (props.bgBlur) c += ' backdrop-blur-sm'
-  console.log(c)
-  return c
+  if (props.bgBlur) classes += ' backdrop-blur-sm'
+  return classes
 })
 </script>
 
