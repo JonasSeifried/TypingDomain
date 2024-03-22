@@ -6,6 +6,8 @@ import { useAuthStore } from './auth'
 
 export const useRoomStore = defineStore('room', () => {
     const joinedRoom = ref<string | null>(null)
+    const isReady = ref<boolean>(false)
+    const roomStarted = ref<boolean>(false)
     const clientsInRoom = ref<ClientData[]>([])
     const textOfRoom = ref<string>('')
     const authStore = useAuthStore()
@@ -22,19 +24,34 @@ export const useRoomStore = defineStore('room', () => {
         })
     }
 
+    function toggleReady() {
+        socket.emit('roomSetReady', !isReady.value)
+        isReady.value = !isReady.value
+    }
+
     function bindEvents() {
         if (eventsBound.value) return
         socket.on('startRound', (text) => {
             textOfRoom.value = text
+            roomStarted.value = true
         })
 
-        socket.on('clientConnectedToSameRoom', (clients) => {
-            console.log('event: clientConnectedToSameRoom')
+        socket.on('clientDataInRoomChanged', (clients) => {
             clientsInRoom.value = clients
         })
 
         eventsBound.value = true
     }
 
-    return { joinedRoom, clientsInRoom, textOfRoom, eventsBound, joinRoom, bindEvents }
+    return {
+        joinedRoom,
+        clientsInRoom,
+        textOfRoom,
+        isReady,
+        roomStarted,
+        eventsBound,
+        joinRoom,
+        toggleReady,
+        bindEvents
+    }
 })

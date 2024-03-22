@@ -1,25 +1,28 @@
 export type ClientData = {
   socketId: string;
-  playerName: string;
+  username: string;
   typedText: string;
+  isReady: boolean;
 };
 
 export type SocketData = {
-  playerName: string;
+  username: string;
   typedText: string;
   joinedRoom: string | null;
+  isReady: boolean;
 };
 
 export type ServerToCLientEvents = {
-  clientConnectedToSameRoom: (clients: ClientData[]) => void;
+  clientDataInRoomChanged: (clients: ClientData[]) => void;
   startRound: (text: string) => void;
 };
 
 export type ClientToServerEvents = {
   joinRoom: (
     roomId: string,
-    playerName: string,
+    username: string,
     callback: (err?: Error) => void
   ) => void;
   textFieldInput: (text: string) => void;
+  roomSetReady: (ready: boolean) => void;
 };

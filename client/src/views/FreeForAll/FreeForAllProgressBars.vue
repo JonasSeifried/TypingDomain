@@ -4,9 +4,9 @@ import { useRoomStore } from '@/stores/room'
 
 const roomStore = useRoomStore()
 
-function buildPlayerName(playerName: string, socketId: string): string {
-    if (socketId === socket.id) return playerName + ' (You)'
-    return playerName
+function buildUsername(username: string, socketId: string): string {
+    if (socketId === socket.id) return username + ' (You)'
+    return username
 }
 
 function progressValue(typedText: string) {
@@ -19,7 +19,7 @@ function progressValue(typedText: string) {
     <div id="slider-div" class="flex flex-col w-1/2">
         <div v-for="client in roomStore.clientsInRoom" :key="client.socketId" class="m-2">
             <label :for="client.socketId" class="mr-4">{{
-                buildPlayerName(client.playerName, client.socketId)
+                buildUsername(client.username, client.socketId)
             }}</label>
             <progress
                 class="w-full h-4 rounded-lg dark:bg-gray-700"

@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { socket } from '@/socket'
 import FreeForAllProgressBars from './FreeForAllProgressBars.vue'
 import { useRoomStore } from '@/stores/room'
+import FreeForAllReady from './FreeForAllReady.vue'
 
 const hiddenInputField = ref<HTMLInputElement | null>(null)
 const typedText = ref<string>('')
@@ -40,7 +41,8 @@ onBeforeMount(() => {
 <template>
     <div class="flex flex-col items-center mx-10 h-[100vh]" :onClick="onDivClick">
         <h1 class="m-5 text-2xl text-white">Typing Domain</h1>
-        <FreeForAllProgressBars />
+        <FreeForAllProgressBars v-if="roomStore.roomStarted" />
+        <FreeForAllReady v-else />
 
         <div class="flex flex-wrap w-1/2 gap-y-1">
             <span
