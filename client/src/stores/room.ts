@@ -29,6 +29,10 @@ export const useRoomStore = defineStore('room', () => {
         isReady.value = !isReady.value
     }
 
+    function isInRoom() {
+        return joinedRoom.value !== null
+    }
+
     function bindEvents() {
         if (eventsBound.value) return
         socket.on('startRound', (text) => {
@@ -52,6 +56,7 @@ export const useRoomStore = defineStore('room', () => {
         eventsBound,
         joinRoom,
         toggleReady,
+        isInRoom,
         bindEvents
     }
 })

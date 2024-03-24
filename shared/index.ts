@@ -5,11 +5,12 @@ export type ClientData = {
   isReady: boolean;
 };
 
-export type SocketData = {
-  username: string;
-  typedText: string;
-  joinedRoom: string | null;
-  isReady: boolean;
+export type SocketData = {};
+
+export type RoomData = {
+  id: string;
+  clients: Map<string, ClientData>;
+  started: boolean;
 };
 
 export type ServerToCLientEvents = {

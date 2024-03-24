@@ -30,6 +30,7 @@ function letterClass(letter: string, index: number): string {
 }
 
 onBeforeMount(() => {
+    if (roomStore.isInRoom()) return
     roomStore.joinRoom(roomId, (err) => {
         if (err) {
             console.error(err)
@@ -39,7 +40,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <div class="flex flex-col items-center mx-10 h-[100vh]" :onClick="onDivClick">
+    <div class="flex flex-col items-center mx-10 w-full h-[100vh]" :onClick="onDivClick">
         <h1 class="m-5 text-2xl text-white">Typing Domain</h1>
         <FreeForAllProgressBars v-if="roomStore.roomStarted" />
         <FreeForAllReady v-else />
