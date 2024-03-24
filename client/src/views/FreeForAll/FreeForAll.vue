@@ -42,10 +42,10 @@ onBeforeMount(() => {
 <template>
     <div class="flex flex-col items-center mx-10 w-full h-[100vh]" :onClick="onDivClick">
         <h1 class="m-5 text-2xl text-white">Typing Domain</h1>
-        <FreeForAllProgressBars v-if="roomStore.roomStarted" />
+        <FreeForAllProgressBars v-if="!roomStore.roomIsWaitingForPlayers" />
         <FreeForAllReady v-else />
 
-        <div class="flex flex-wrap w-1/2 gap-y-1">
+        <div v-if="!roomStore.roomIsWaitingForPlayers" class="flex flex-wrap w-1/2 gap-y-1">
             <span
                 v-for="(item, index) in roomStore.textOfRoom"
                 :key="index"

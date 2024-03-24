@@ -3,7 +3,8 @@ import { ClientData, GameState, RoomData } from "shared";
 export class Rooms {
   private roomData: Map<string, RoomData> = new Map();
   private socketIdsToRooms: Map<string, string> = new Map();
-  private watcherFunctions: Function[] = [];
+  private onClientDataChangedEventHandlers: Function[] = [];
+  private onRoomDataChangedEventHandlers: Function[] = [];
 
   public joinRoom(roomId: string, socketId: string, username: string): void {
     const room = this.getRoom(roomId);
@@ -23,7 +24,8 @@ export class Rooms {
       });
     }
     this.socketIdsToRooms.set(socketId, roomId);
-    this.changed(roomId);
+    this.emitClientDataChangedEvent(roomId);
+    this.emitRoomDataChangedEvent(roomId);
   }
 
   public leaveRoom(roomId: string, socketId: string): boolean {
@@ -31,7 +33,7 @@ export class Rooms {
     room.players.delete(socketId);
     room.spectators.delete(socketId);
     const deleted = this.socketIdsToRooms.delete(socketId);
-    if (deleted) this.changed(roomId);
+    if (deleted) this.emitClientDataChangedEvent(roomId);
     return deleted;
   }
 
@@ -39,14 +41,14 @@ export class Rooms {
     const room = this.getRoomOfClient(socketId);
     if (!room.players.has(socketId)) throw new Error("User is not a player");
     room.players.get(socketId).isReady = ready;
-    this.changed(room.id);
+    this.emitClientDataChangedEvent(room.id);
   }
 
   public setTextOfPlayer(socketId: string, text: string): void {
     const room = this.getRoomOfClient(socketId);
     if (!room.players.has(socketId)) throw new Error("User is not a player");
     room.players.get(socketId).typedText = text;
-    this.changed(room.id);
+    this.emitClientDataChangedEvent(room.id);
   }
 
   public getClientDataOfRoom(roomId: string): ClientData[] {
@@ -66,7 +68,7 @@ export class Rooms {
       throw new Error("Can't start Game, not all clients are ready");
     }
     this.getRoom(roomId).gameState = GameState.PLAYING;
-    this.changed(roomId);
+    this.emitRoomDataChangedEvent(roomId);
   }
 
   public roomReady(roomId: string): boolean {
@@ -87,7 +89,7 @@ export class Rooms {
       players: new Map(),
       spectators: new Map(),
       gameState: GameState.WAITING,
-      text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      text: "This room hasnt begun yet",
     });
   }
 
@@ -95,8 +97,17 @@ export class Rooms {
     return this.getRoom(roomId).text;
   }
 
-  public onRoomChanged(watcherFunction: (roomID) => void): void {
-    this.watcherFunctions.push(watcherFunction);
+  public setRoomText(roomId: string, text: string): void {
+    this.getRoom(roomId).text = text;
+    this.emitRoomDataChangedEvent(roomId);
+  }
+
+  public onCliendDataChanged(func: (roomID) => void): void {
+    this.onClientDataChangedEventHandlers.push(func);
+  }
+
+  public onRoomDataChanged(func: (roomID) => void): void {
+    this.onRoomDataChangedEventHandlers.push(func);
   }
 
   private getRoomOfClient(socketId: string): RoomData {
@@ -115,9 +126,14 @@ export class Rooms {
     return room;
   }
 
-  private changed(roomId: string): void {
-    this.watcherFunctions.forEach((watcherFunction) => {
-      watcherFunction(roomId);
+  private emitClientDataChangedEvent(roomId: string): void {
+    this.onClientDataChangedEventHandlers.forEach((func) => {
+      func(roomId);
+    });
+  }
+  private emitRoomDataChangedEvent(roomId: string): void {
+    this.onRoomDataChangedEventHandlers.forEach((func) => {
+      func(roomId);
     });
   }
 }

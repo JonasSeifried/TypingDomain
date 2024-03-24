@@ -6,12 +6,12 @@ const roomStore = useRoomStore()
 
 const waitingFor = computed(() => {
     const notReady = roomStore.clientsInRoom.filter((client) => !client.isReady)
-    const readyCount = notReady.length
-    if (!roomStore.isReady && roomStore.clientsInRoom.length - readyCount == 1)
+    const notReadyCount = notReady.length
+    if (!roomStore.isReady && notReadyCount == 1)
         return 'Ready up! <span class="text-pink-700">Everyone</span> is waiting for you!'
     if (!roomStore.isReady) return 'Ready up!'
     const notReadyText = notReady
-        .reduce((acc, client) => acc + client.username + ', ', '')
+        .reduce((acc, client) => acc + client.username + '  , ', '')
         .slice(0, -2)
     return `Waiting for ${notReadyText}`
 })

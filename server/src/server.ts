@@ -1,7 +1,12 @@
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { ClientToServerEvents, ServerToCLientEvents, SocketData } from "shared";
+import {
+  ClientToServerEvents,
+  GameState,
+  ServerToCLientEvents,
+  SocketData,
+} from "shared";
 import { Rooms } from "./rooms";
 
 const app = express();
@@ -16,7 +21,8 @@ export const io = new Server<
 
 const rooms = new Rooms();
 
-rooms.onRoomChanged(notifyClients);
+rooms.onCliendDataChanged(onClientDataChanged);
+rooms.onRoomDataChanged(onRoomDataChanged);
 
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} connected`);
@@ -24,25 +30,33 @@ io.on("connection", (socket) => {
   socket.on("textFieldInput", (text) => rooms.setTextOfPlayer(socket.id, text));
 
   socket.on("joinRoom", (roomId: string, username: string, callback) => {
-    if (roomId.trim().length === 0)
+    const trimmedUsername = username.trim();
+    const trimmedRoomId = roomId.trim();
+    if (trimmedRoomId.length === 0)
       return callback(Error("Room name is required"));
-    if (username.trim().length === 0)
+    if (trimmedUsername.length === 0)
       return callback(Error("Username is required"));
 
     socket.rooms.forEach((room) => {
       socket.leave(room);
     });
-    socket.join(roomId);
-    rooms.joinRoom(roomId, socket.id, username.trim());
-    callback(undefined, rooms.getRoomGameState(roomId));
+    socket.join(trimmedRoomId);
+    rooms.joinRoom(trimmedRoomId, socket.id, trimmedUsername);
+    callback(
+      undefined,
+      rooms.getRoomGameState(trimmedRoomId) !== GameState.WAITING
+    );
   });
 
   socket.on("roomSetReady", (isReady: boolean) => {
     rooms.setClientReady(socket.id, isReady);
     const roomId = rooms.getRoomIdFromSocketId(socket.id);
     if (rooms.roomReady(roomId)) {
+      rooms.setRoomText(
+        roomId,
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+      );
       rooms.startRoom(roomId);
-      io.to(roomId).emit("startRound", rooms.getRoomText(roomId));
     }
   });
 
@@ -74,9 +88,17 @@ server.listen(3000, () => {
   console.log("server running at http://localhost:3000");
 });
 
-function notifyClients(roomId: string) {
+function onClientDataChanged(roomId: string) {
   io.to(roomId).emit(
     "clientDataInRoomChanged",
     rooms.getClientDataOfRoom(roomId)
+  );
+}
+
+function onRoomDataChanged(roomId: string) {
+  io.to(roomId).emit(
+    "roomDataChanged",
+    rooms.getRoomGameState(roomId),
+    rooms.getRoomText(roomId)
   );
 }

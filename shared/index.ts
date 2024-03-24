@@ -24,13 +24,14 @@ export enum GameState {
 export type ServerToCLientEvents = {
   clientDataInRoomChanged: (clients: ClientData[]) => void;
   startRound: (text: string) => void;
+  roomDataChanged: (gameState: GameState, text: string) => void;
 };
 
 export type ClientToServerEvents = {
   joinRoom: (
     roomId: string,
     username: string,
-    callback: (err?: Error, gameState?: GameState) => void
+    callback: (error?: Error, joinedAsSpectator?: boolean) => void
   ) => void;
   textFieldInput: (text: string) => void;
   roomSetReady: (ready: boolean) => void;
