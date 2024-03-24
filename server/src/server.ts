@@ -21,9 +21,7 @@ rooms.onRoomChanged(notifyClients);
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} connected`);
 
-  socket.on("textFieldInput", (text) =>
-    rooms.setTypedTextOfClient(socket.id, text)
-  );
+  socket.on("textFieldInput", (text) => rooms.setTextOfPlayer(socket.id, text));
 
   socket.on("joinRoom", (roomId: string, username: string, callback) => {
     if (roomId.trim().length === 0)
@@ -36,17 +34,15 @@ io.on("connection", (socket) => {
     });
     socket.join(roomId);
     rooms.joinRoom(roomId, socket.id, username.trim());
-    callback();
+    callback(undefined, rooms.getRoomGameState(roomId));
   });
 
   socket.on("roomSetReady", (isReady: boolean) => {
     rooms.setClientReady(socket.id, isReady);
     const roomId = rooms.getRoomIdFromSocketId(socket.id);
-    if (rooms.allClientsOfRoomReady(roomId)) {
-      io.to(roomId).emit(
-        "startRound",
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
-      );
+    if (rooms.roomReady(roomId)) {
+      rooms.startRoom(roomId);
+      io.to(roomId).emit("startRound", rooms.getRoomText(roomId));
     }
   });
 

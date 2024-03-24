@@ -9,9 +9,17 @@ export type SocketData = {};
 
 export type RoomData = {
   id: string;
-  clients: Map<string, ClientData>;
-  started: boolean;
+  players: Map<string, ClientData>;
+  spectators: Map<string, ClientData>;
+  gameState: GameState;
+  text: string;
 };
+
+export enum GameState {
+  WAITING,
+  PLAYING,
+  FINISHED,
+}
 
 export type ServerToCLientEvents = {
   clientDataInRoomChanged: (clients: ClientData[]) => void;
@@ -22,7 +30,7 @@ export type ClientToServerEvents = {
   joinRoom: (
     roomId: string,
     username: string,
-    callback: (err?: Error) => void
+    callback: (err?: Error, gameState?: GameState) => void
   ) => void;
   textFieldInput: (text: string) => void;
   roomSetReady: (ready: boolean) => void;
