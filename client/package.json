@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "firebase": "^10.9.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "shared": "workspace:*",

@@ -1,14 +1,20 @@
 <script setup lang="ts">
+import { onBeforeMount } from 'vue'
+import { initializeFirebase } from './firebase/firebase'
 import { socket, bindEvents } from './socket'
 import { useAuthStore } from './stores/auth'
 import { useConnectionStore } from './stores/connection'
 
-socket.off()
-const connectionStore = useConnectionStore()
-bindEvents()
-connectionStore.connect()
-
 const authStore = useAuthStore()
+const connectionStore = useConnectionStore()
+
+onBeforeMount(() => {
+    socket.off()
+    bindEvents()
+    connectionStore.connect()
+
+    initializeFirebase()
+})
 </script>
 
 <template>
@@ -25,3 +31,4 @@ const authStore = useAuthStore()
         <RouterView />
     </main>
 </template>
+./firebase/firebase
