@@ -110,6 +110,10 @@ export class Rooms {
     this.onRoomDataChangedEventHandlers.push(func);
   }
 
+  public hasRoom(roomId: string): boolean {
+    return this.roomData.has(roomId);
+  }
+
   private getRoomOfClient(socketId: string): RoomData {
     const roomId = this.socketIdsToRooms.get(socketId);
     if (!roomId) {

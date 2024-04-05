@@ -1,63 +1,18 @@
 <script setup lang="ts">
-import { socket } from '@/socket'
-import { useAuthStore } from '@/stores/auth'
-import { useRoomStore } from '@/stores/room'
-import { ref } from 'vue'
+import { FreeFforAllLobbyRoute } from '@/router'
 import { useRouter } from 'vue-router'
 
-const validatingError = ref('')
-const roomId = ref(socket.id!)
 const router = useRouter()
-const authStore = useAuthStore()
-const { joinRoom } = useRoomStore()
 
 function onSubmit() {
-    if (!validate()) return
-    joinRoom(roomId.value, (err) => {
-        if (err) {
-            console.error(err)
-            return
-        }
-        router.push(`/room/${roomId.value}`)
-    })
-}
-
-function playAsGuest() {
-    router.push('/login')
-}
-
-function validate() {
-    if (roomId.value === '') {
-        validatingError.value = 'Room id cannot be empty'
-        return false
-    }
-    return true
+    router.push(FreeFforAllLobbyRoute)
 }
 </script>
 
 <template>
     <h1 class="text-6xl m-8">Typing Domain</h1>
-    <div
-        v-if="authStore.isAuthorized"
-        class="flex flex-col w-1/2 h-64 bg-zinc-800 rounded-lg items-center"
-    >
-        <h2 class="text-2xl m-4">Join or Create a Room</h2>
-        <div class="flex">
-            <div class="flex flex-col m-2">
-                <label for="roomId">Room Id</label>
-                <input
-                    id="roomId"
-                    @keypress.enter="onSubmit"
-                    class="p-2 rounded-md text-black"
-                    type="text"
-                    v-model="roomId"
-                />
-            </div>
-        </div>
-
-        <p id="error-text" :hidden="!validatingError" class="text-red-500">{{ validatingError }}</p>
-        <button class="room-button" @click="onSubmit" :disabled="roomId === ''">Join Room</button>
+    <div class="flex flex-col w-1/2 h-64 bg-zinc-800 rounded-lg items-center">
+        <h2 class="text-2xl m-4">Classic</h2>
+        <button class="room-button" @click="onSubmit">Play</button>
     </div>
-
-    <button v-else class="room-button mt-12" @click="playAsGuest">Play as Guest</button>
 </template>

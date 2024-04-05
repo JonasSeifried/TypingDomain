@@ -5,6 +5,7 @@ import { socket } from '@/socket'
 import FreeForAllProgressBars from './FreeForAllProgressBars.vue'
 import { useRoomStore } from '@/stores/room'
 import FreeForAllReady from './FreeForAllReady.vue'
+import CountDown from '@/components/CountDown.vue'
 
 const hiddenInputField = ref<HTMLInputElement | null>(null)
 const typedText = ref<string>('')
@@ -32,20 +33,27 @@ function letterClass(letter: string, index: number): string {
 onBeforeMount(() => {
     if (roomStore.isInRoom()) return
     roomStore.joinRoom(roomId, (err) => {
-        if (err) {
-            console.error(err)
+        if (!err.success) {
+            console.error(err.error.message)
         }
     })
 })
 </script>
 
 <template>
-    <div class="flex flex-col items-center mx-10 w-full h-[100vh]" :onClick="onDivClick">
-        <h1 class="m-5 text-2xl text-white">Typing Domain</h1>
-        <FreeForAllProgressBars v-if="!roomStore.roomIsWaitingForPlayers" />
+    <div class="flex flex-col items-center mx-10 w-full h-full" :onClick="onDivClick">
+        <h1 class="mb-5 text-2xl text-white">Typing Domain</h1>
+        <span v-if="!roomStore.isWaiting" class="relative right-0 ml-20">{{
+            roomStore.gameTimer
+        }}</span>
+        <FreeForAllProgressBars v-if="!roomStore.isWaiting" />
         <FreeForAllReady v-else />
+        <CountDown
+            v-if="roomStore.isWaiting && roomStore.startCountdown"
+            :time="roomStore.startCountdown"
+        />
 
-        <div v-if="!roomStore.roomIsWaitingForPlayers" class="flex flex-wrap w-1/2 gap-y-1">
+        <div v-if="!roomStore.isWaiting" class="flex flex-wrap w-1/2 gap-y-1">
             <span
                 v-for="(item, index) in roomStore.textOfRoom"
                 :key="index"

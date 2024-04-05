@@ -2,7 +2,7 @@ import { socket } from '@/socket'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useConnectionStore = defineStore('connection', () => {
+export const useSocketStore = defineStore('socket', () => {
     const isConnected = ref<boolean>(false)
     const eventsBound = ref<boolean>(false)
     const socketId = ref<string>()
@@ -24,5 +24,9 @@ export const useConnectionStore = defineStore('connection', () => {
         socket.connect()
     }
 
-    return { isConnected, socketId, eventsBound, bindEvents, connect }
+    function disconnect() {
+        socket.disconnect()
+    }
+
+    return { isConnected, socketId, eventsBound, bindEvents, connect, disconnect }
 })

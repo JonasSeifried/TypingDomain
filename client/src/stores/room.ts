@@ -1,6 +1,6 @@
 import { socket } from '@/socket'
 import { defineStore } from 'pinia'
-import { GameState, type ClientData } from 'shared'
+import { err, GameState, ok, type ClientData, type Result } from 'shared'
 import { computed, ref } from 'vue'
 import { useAuthStore } from './auth'
 
@@ -11,28 +11,28 @@ export const useRoomStore = defineStore('room', () => {
     const gameState = ref<GameState>(GameState.WAITING)
     const clientsInRoom = ref<ClientData[]>([])
     const textOfRoom = ref<string>('')
-    const authStore = useAuthStore()
     const eventsBound = ref<boolean>(false)
+    const startCountdown = ref<number | undefined>(undefined)
+    const gameTimer = ref<number>(0)
+    const authStore = useAuthStore()
 
-    function joinRoom(roomId: string, callback: (err?: Error) => void) {
-        socket
-            .timeout(5000)
-            .emit('joinRoom', roomId, authStore.username!, (timeoutErr, err, joinedAsSpectator) => {
-                if (timeoutErr) {
-                    callback(timeoutErr)
-                    return
-                }
+    async function joinRoom(roomId: string, callback: (res: Result<void>) => void) {
+        socket.timeout(5000).emit('joinRoom', roomId, authStore.username!, (timeoutErr, res) => {
+            if (timeoutErr) {
+                callback(err(timeoutErr))
+                return
+            }
 
-                if (err) {
-                    callback(err)
-                    return
-                }
+            if (!res.success) {
+                callback(err(res.error))
+                return
+            }
 
-                joinedRoom.value = roomId
-                isSpectator.value = joinedAsSpectator ?? false
-
-                callback()
-            })
+            joinedRoom.value = roomId
+            isSpectator.value = res.result
+            console.log(`joined room ${roomId} as a `, res.result ? 'spectator' : 'player')
+            callback(ok())
+        })
     }
 
     function toggleReady() {
@@ -44,20 +44,28 @@ export const useRoomStore = defineStore('room', () => {
         return joinedRoom.value !== null
     }
 
-    const roomIsWaitingForPlayers = computed(() => {
+    const isWaiting = computed(() => {
         return gameState.value === GameState.WAITING
     })
 
     function bindEvents() {
         if (eventsBound.value) return
 
-        socket.on('roomDataChanged', (state, text) => {
-            gameState.value = state
-            textOfRoom.value = text
+        socket.on('roomDataChanged', (clientRoomData) => {
+            gameState.value = clientRoomData.state
+            textOfRoom.value = clientRoomData.text
         })
 
         socket.on('clientDataInRoomChanged', (clients) => {
             clientsInRoom.value = clients
+        })
+
+        socket.on('roomStartRoundCountDown', (countdown) => {
+            startCountdown.value = countdown
+        })
+
+        socket.on('roomGameTimer', (gameTime) => {
+            gameTimer.value = gameTime
         })
 
         eventsBound.value = true
@@ -71,7 +79,9 @@ export const useRoomStore = defineStore('room', () => {
         isSpectator,
         gameState,
         eventsBound,
-        roomIsWaitingForPlayers,
+        isWaiting,
+        startCountdown,
+        gameTimer,
         joinRoom,
         toggleReady,
         isInRoom,

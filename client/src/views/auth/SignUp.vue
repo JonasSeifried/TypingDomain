@@ -1,30 +1,17 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
-import { getAuth, sendSignInLinkToEmail } from 'firebase/auth'
-import { signUp, signIn } from '@/firebase/firebase'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 const username = ref<string>('')
 const email = ref<string>('')
 const password = ref<string>('')
-const { login } = useAuthStore()
+const errorText = ref<string>('')
+const { signUp } = useAuthStore()
 
-const auth = getAuth()
-
-console.log(auth.currentUser)
-
-function trySignUp() {
+async function trySignUp() {
     if (username.value.trim() === '') return
-
-    signUp(email.value, password.value)
-    //login(username.value)
-}
-
-function trySignIn() {
-    if (username.value.trim() === '') return
-
-    signIn(email.value, password.value)
-    //login(username.value)
+    const res = await signUp(username.value, email.value, password.value)
+    if (!res.success) errorText.value = res.error.message
 }
 </script>
 
@@ -45,7 +32,6 @@ function trySignIn() {
         <input
             id="email"
             class="p-2 m-2 rounded-md text-black"
-            @keypress.enter="trySignUp"
             type="email"
             v-model="email"
             placeholder="Your email address"
@@ -54,23 +40,17 @@ function trySignIn() {
             id="password"
             class="p-2 m-2 rounded-md text-black"
             @keypress.enter="trySignUp"
-            type="email"
+            type="password"
             v-model="password"
             placeholder="Password"
         />
+        <span :hidden="errorText.trim() === ''">{{ errorText }}</span>
         <button
             class="room-button"
             @click="trySignUp"
             :disabled="username.trim() === '' || email.trim() === ''"
         >
             signUp!
-        </button>
-        <button
-            class="room-button"
-            @click="trySignIn"
-            :disabled="username.trim() === '' || email.trim() === ''"
-        >
-            signIn!
         </button>
     </div>
 </template>
