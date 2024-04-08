@@ -48,6 +48,14 @@ export const useRoomStore = defineStore('room', () => {
         return gameState.value === GameState.WAITING
     })
 
+    const isPlaying = computed(() => {
+        return gameState.value === GameState.PLAYING
+    })
+
+    const isFinished = computed(() => {
+        return gameState.value === GameState.FINISHED
+    })
+
     function bindEvents() {
         if (eventsBound.value) return
 
@@ -80,6 +88,8 @@ export const useRoomStore = defineStore('room', () => {
         gameState,
         eventsBound,
         isWaiting,
+        isPlaying,
+        isFinished,
         startCountdown,
         gameTimer,
         joinRoom,

@@ -25,7 +25,7 @@ onBeforeMount(() => {
         </button>
         <span class="text-xl m-4">{{ authStore.username }}</span>
     </header>
-    <main class="flex flex-col items-center mx-10">
+    <main class="flex flex-col items-center mx-10 grow">
         <RouterView />
     </main>
 </template>

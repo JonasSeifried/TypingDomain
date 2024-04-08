@@ -65,7 +65,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function authReady(): Promise<void> {
         await auth.authStateReady()
-        if (!user.value) return
+        if (user.value == null) return
+        if (username.value !== null) return
         await new Promise((resolve) => {
             const unsubscribe = watchEffect(() => {
                 if (username.value !== null) {

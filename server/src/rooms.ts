@@ -63,11 +63,16 @@ export class Rooms {
     return this.getRoom(roomId).gameState;
   }
 
-  public startRoom(roomId: string): void {
+  public startGame(roomId: string): void {
     if (!this.roomReady(roomId)) {
       throw new Error("Can't start Game, not all clients are ready");
     }
     this.getRoom(roomId).gameState = GameState.PLAYING;
+    this.emitRoomDataChangedEvent(roomId);
+  }
+
+  public endGame(roomId: string): void {
+    this.getRoom(roomId).gameState = GameState.FINISHED;
     this.emitRoomDataChangedEvent(roomId);
   }
 

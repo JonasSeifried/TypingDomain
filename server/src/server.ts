@@ -29,14 +29,22 @@ rooms.onRoomDataChanged(onRoomDataChanged);
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} connected`);
 
-  socket.on("textFieldInput", (text) => rooms.setTextOfPlayer(socket.id, text));
+  socket.on("textFieldInput", (text) => {
+    rooms.setTextOfPlayer(socket.id, text)
+    const roomId = rooms.getRoomIdFromSocketId(socket.id);
+    if (text.length == rooms.getRoomText(roomId).length) {
+      rooms.endGame(roomId);
+    }
+  });
+  
 
   socket.on("joinRoom", (roomId: string, username: string, callback) => {
-    const trimmedUsername = username.trim();
-    const trimmedRoomId = roomId.trim();
-    if (trimmedRoomId.length === 0)
+    console.log(roomId, username)
+    const trimmedUsername = username?.trim();
+    const trimmedRoomId = roomId?.trim();
+    if (!trimmedRoomId || trimmedRoomId.length === 0)
       return callback(err(Error("Room name is required")));
-    if (trimmedUsername.length === 0)
+    if (!trimmedUsername || trimmedUsername.length === 0)
       return callback(err(Error("Username is required")));
 
     socket.rooms.forEach((room) => {
@@ -126,7 +134,7 @@ function startRoomCountDown(roomId: string) {
         roomId,
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
       );
-      rooms.startRoom(roomId);
+      rooms.startGame(roomId);
       startRoomGameTimer(roomId);
       return;
     }
