@@ -1,22 +1,26 @@
 <script setup lang="ts">
+import { socket } from '@/socket'
 import FreeForAllProgressBars from './FreeForAllProgressBars.vue'
 import { useRoomStore } from '@/stores/room'
 import { computed, onMounted, ref } from 'vue'
 
 const roomStore = useRoomStore()
 
+const parentWritableDiv = ref<HTMLDivElement | null>(null)
 const writableDiv = ref<HTMLDivElement | null>(null)
+const typedTextDiv = ref<HTMLDivElement | null>(null)
 const typedText = ref<string>('')
-const editableText = ref<string>('')
-const textToWrite = computed<string>(() => remainingText.value.split(' ', 2).join(' '))
-const remainingText = ref<string>('')
+const wholeText = roomStore.textOfRoom
+const remainingText = computed<string>(() => wholeText.substring(typedText.value.length))
 
-function onInput(payload: Event) {
-    // if (lastInputEmited === typedText.value) return
-    // socket.emit('textFieldInput', typedText.value)
-    // lastInputEmited = typedText.value
+function onInput() {
     if (!writableDiv.value) return
-    editableText.value = writableDiv.value.innerText
+    if (writableDiv.value.innerText.length === 1) {
+        writableDiv.value.innerText = writableDiv.value.innerText.replace('\n', '')
+        setCursorToEnd()
+    }
+    typedText.value = writableDiv.value.innerText
+    socket.emit('textFieldInput', typedText.value)
     return
 }
 
@@ -27,16 +31,6 @@ function onKeyDown(event: KeyboardEvent) {
     }
     if (event.key !== ' ') return
     if (!writableDiv.value) return
-    const trimmedText = writableDiv.value.innerText.trim()
-    if (!trimmedText.includes(' ')) return
-    const indexOfSpace = trimmedText.indexOf(' ')
-    const firstWord = trimmedText.substring(0, indexOfSpace + 1)
-    const secondWord = trimmedText.substring(indexOfSpace + 1)
-    typedText.value += firstWord
-    writableDiv.value.innerText = secondWord
-    remainingText.value = remainingText.value.slice(firstWord.length)
-
-    setCursorToEnd()
 }
 
 function setCursorToEnd() {
@@ -55,14 +49,19 @@ function onDivClick() {
 }
 
 function letterClass(letter: string, index: number): string {
-    return letter === textToWrite.value[index] ? 'green_letter' : 'red_letter'
+    return letter === wholeText[index] ? 'green_letter' : 'red_letter'
+}
+function letterOpacity(index: number): number {
+    if (typedText.value.length - index < 10) return 1
+    return 1 - (typedText.value.length - index) / 25
 }
 
 onMounted(() => {
-    //remainingText.value = roomStore.textOfRoom
-    remainingText.value =
-        'The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog'
-    setCursorToEnd()
+    if (!parentWritableDiv.value || !writableDiv.value || !typedTextDiv.value) return
+    const maxWidth = `${parentWritableDiv.value.offsetWidth / 2}px`
+    writableDiv.value.style.maxWidth = maxWidth
+    typedTextDiv.value.style.maxWidth = maxWidth
+    writableDiv.value.focus()
 })
 </script>
 
@@ -73,30 +72,35 @@ onMounted(() => {
         :onClick="onDivClick"
         class="p-8 bg-stone-700 rounded flex flex-row justify-center focus-within:outline text-2xl letter whitespace-pre select-none"
     >
-        <div class="flex justify-end w-96 bg-stone-600 text-nowrap py-4 gap-1 text-right">
-            <div class="min-w-0 text-opacity-50">
-                {{ typedText }}
-            </div>
-        </div>
-        <div class="bg-stone-800 w-96 py-4">
-            <div
-                ref="writableDiv"
-                class="w-min min-w-16 overflow-hidden focus:outline-none absolute text-transparent caret-white z-20"
-                contenteditable="true"
-                @keydown="onKeyDown"
-                @input="onInput"
-            ></div>
-            <div class="w-min min-w-16 overflow-hidden focus:outline-none z-10 absolute">
-                <span
-                    v-for="(item, index) in editableText"
-                    :key="index"
-                    class="bg-stone-800"
-                    :class="letterClass(item, index)"
+        <div ref="parentWritableDiv" class="flex justify-end bg-stone-800 w-[48rem] py-4">
+            <div class="text-right flex justify-end w-1/2">
+                <div
+                    ref="writableDiv"
+                    class="overflow-hidden focus:outline-none absolute text-transparent bg-clip-text caret-white z-20"
+                    contenteditable="true"
+                    spellcheck="false"
+                    autocapitalize="false"
+                    autocorrect="false"
+                    @keydown="onKeyDown"
+                    @input="onInput"
+                ></div>
+                <div
+                    id="typedTextDiv"
+                    ref="typedTextDiv"
+                    class="overflow-hidden focus:outline-none z-10 absolute flex justify-end"
                 >
-                    {{ item }}
-                </span>
+                    <span
+                        v-for="(item, index) in typedText"
+                        :key="index"
+                        class=""
+                        :class="letterClass(item, index)"
+                        :style="{ opacity: letterOpacity(index) }"
+                    >
+                        {{ item }}
+                    </span>
+                </div>
             </div>
-            <div class="truncate">{{ remainingText }}</div>
+            <div class="truncate w-1/2 whitespace-pre">{{ remainingText }}</div>
         </div>
     </div>
 </template>
@@ -110,14 +114,6 @@ onMounted(() => {
 }
 .red_letter {
     color: rgb(170, 26, 26);
-    text-decoration: line-through;
-}
-.hidden-input-field {
-    position: absolute;
-    opacity: 0;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -o-user-select: none;
+    text-decoration: underline;
 }
 </style>
