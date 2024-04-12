@@ -18,12 +18,12 @@ onBeforeMount(() => {
     <header class="flex justify-between">
         <button
             v-if="authStore.isSignedIn"
-            class="text-xl m-4 hover:text-white hover:scale-110"
+            class="m-4 text-xl hover:text-white hover:scale-110"
             @click="authStore.signOut"
         >
             Logout
         </button>
-        <span class="text-xl m-4">{{ authStore.username }}</span>
+        <span class="m-4 text-xl">{{ authStore.username }}</span>
     </header>
     <main class="flex flex-col items-center mx-10 grow">
         <RouterView />

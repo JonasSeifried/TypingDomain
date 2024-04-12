@@ -37,19 +37,19 @@ function validate() {
 </script>
 
 <template>
-    <h1 class="text-6xl mb-8">Typing Domain</h1>
+    <h1 class="mb-8 text-6xl">Typing Domain</h1>
     <div
         v-if="authStore.isSignedIn"
-        class="flex flex-col w-1/2 h-64 bg-zinc-800 rounded-lg items-center"
+        class="flex flex-col items-center w-1/2 h-64 rounded-lg bg-zinc-800"
     >
-        <h2 class="text-2xl m-4">Join or Create a Room</h2>
+        <h2 class="m-4 text-2xl">Join or Create a Room</h2>
         <div class="flex">
             <div class="flex flex-col m-2">
                 <label for="roomId">Room Id</label>
                 <input
                     id="roomId"
                     @keypress.enter="onSubmit"
-                    class="p-2 rounded-md text-black"
+                    class="p-2 text-black rounded-md"
                     type="text"
                     v-model="roomId"
                 />
@@ -60,5 +60,5 @@ function validate() {
         <button class="room-button" @click="onSubmit" :disabled="roomId === ''">Join Room</button>
     </div>
 
-    <button v-else class="room-button mt-12" @click="playAsGuest">Play as Guest</button>
+    <button v-else class="mt-12 room-button" @click="playAsGuest">Play as Guest</button>
 </template>

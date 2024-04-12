@@ -8,12 +8,13 @@ export class Rooms {
 
   public joinRoom(roomId: string, socketId: string, username: string): void {
     const room = this.getRoom(roomId);
-    if (this.getRoomGameState(roomId) == GameState.WAITING) {
+    if (this.getRoomGameState(roomId) == GameState.PREGAME) {
       room.players.set(socketId, {
         socketId,
         username,
         typedText: "",
         isReady: false,
+        isFinished: false,
       });
     } else {
       room.spectators.set(socketId, {
@@ -21,6 +22,7 @@ export class Rooms {
         username,
         typedText: "",
         isReady: false,
+        isFinished: false,
       });
     }
     this.socketIdsToRooms.set(socketId, roomId);
@@ -47,8 +49,22 @@ export class Rooms {
   public setTextOfPlayer(socketId: string, text: string): void {
     const room = this.getRoomOfClient(socketId);
     if (!room.players.has(socketId)) throw new Error("User is not a player");
+    if (room.players.get(socketId).isFinished)
+      throw new Error("User is already finished");
     room.players.get(socketId).typedText = text;
     this.emitClientDataChangedEvent(room.id);
+  }
+
+  public setPlayerFinished(socketId: string): void {
+    const room = this.getRoomOfClient(socketId);
+    if (!room.players.has(socketId)) throw new Error("User is not a player");
+    room.players.get(socketId).isFinished = true;
+    this.emitClientDataChangedEvent(room.id);
+  }
+
+  public allPlayersFinished(roomId: string): boolean {
+    const room = this.getRoom(roomId);
+    return !Array.from(room.players).some(([_, player]) => !player.isFinished);
   }
 
   public getClientDataOfRoom(roomId: string): ClientData[] {
@@ -67,12 +83,12 @@ export class Rooms {
     if (!this.roomReady(roomId)) {
       throw new Error("Can't start Game, not all clients are ready");
     }
-    this.getRoom(roomId).gameState = GameState.PLAYING;
+    this.getRoom(roomId).gameState = GameState.INGAME;
     this.emitRoomDataChangedEvent(roomId);
   }
 
   public endGame(roomId: string): void {
-    this.getRoom(roomId).gameState = GameState.FINISHED;
+    this.getRoom(roomId).gameState = GameState.POSTGAME;
     this.emitRoomDataChangedEvent(roomId);
   }
 
@@ -93,7 +109,7 @@ export class Rooms {
       id: roomId,
       players: new Map(),
       spectators: new Map(),
-      gameState: GameState.WAITING,
+      gameState: GameState.PREGAME,
       text: "This room hasnt begun yet",
     });
   }

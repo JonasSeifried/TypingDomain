@@ -8,7 +8,8 @@ export const useRoomStore = defineStore('room', () => {
     const joinedRoom = ref<string | null>(null)
     const isReady = ref<boolean>(false)
     const isSpectator = ref<boolean>(false)
-    const gameState = ref<GameState>(GameState.WAITING)
+    const isFinished = ref<boolean>(false)
+    const gameState = ref<GameState>(GameState.PREGAME)
     const clientsInRoom = ref<ClientData[]>([])
     const textOfRoom = ref<string>('')
     const eventsBound = ref<boolean>(false)
@@ -44,16 +45,20 @@ export const useRoomStore = defineStore('room', () => {
         return joinedRoom.value !== null
     }
 
-    const isWaiting = computed(() => {
-        return gameState.value === GameState.WAITING
+    const isPreGame = computed(() => {
+        return gameState.value === GameState.PREGAME
+    })
+
+    const isInGame = computed(() => {
+        return gameState.value === GameState.INGAME
+    })
+
+    const isPostGame = computed(() => {
+        return gameState.value === GameState.POSTGAME
     })
 
     const isPlaying = computed(() => {
-        return gameState.value === GameState.PLAYING
-    })
-
-    const isFinished = computed(() => {
-        return gameState.value === GameState.FINISHED
+        return !isSpectator.value && !isFinished.value
     })
 
     function bindEvents() {
@@ -76,6 +81,10 @@ export const useRoomStore = defineStore('room', () => {
             gameTimer.value = gameTime
         })
 
+        socket.on('playerFinished', () => {
+            isFinished.value = true
+        })
+
         eventsBound.value = true
     }
 
@@ -85,11 +94,13 @@ export const useRoomStore = defineStore('room', () => {
         textOfRoom,
         isReady,
         isSpectator,
+        isFinished,
         gameState,
         eventsBound,
-        isWaiting,
+        isPreGame,
+        isInGame,
+        isPostGame,
         isPlaying,
-        isFinished,
         startCountdown,
         gameTimer,
         joinRoom,

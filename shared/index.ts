@@ -32,6 +32,7 @@ export type ClientData = {
   username: string;
   typedText: string;
   isReady: boolean;
+  isFinished: boolean;
 };
 
 export type SocketData = {};
@@ -45,9 +46,9 @@ export type RoomData = {
 };
 
 export enum GameState {
-  WAITING,
-  PLAYING,
-  FINISHED,
+  PREGAME,
+  INGAME,
+  POSTGAME,
 }
 
 export type ServerToCLientEvents = {
@@ -55,6 +56,7 @@ export type ServerToCLientEvents = {
   roomDataChanged: (clientRoomData: { state: GameState; text: string }) => void;
   roomStartRoundCountDown: (countdown: number) => void;
   roomGameTimer: (timer: number) => void;
+  playerFinished: () => void;
 };
 
 export type ClientToServerEvents = {

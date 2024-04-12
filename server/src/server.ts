@@ -1,6 +1,6 @@
 import express from "express";
 import { createServer } from "node:http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import {
   ClientToServerEvents,
   err,
@@ -10,6 +10,7 @@ import {
   SocketData,
 } from "shared";
 import { Rooms } from "./rooms";
+import { on } from "node:events";
 
 const app = express();
 const server = createServer(app);
@@ -30,16 +31,11 @@ io.on("connection", (socket) => {
   console.log(`User ${socket.id} connected`);
 
   socket.on("textFieldInput", (text) => {
-    rooms.setTextOfPlayer(socket.id, text)
-    const roomId = rooms.getRoomIdFromSocketId(socket.id);
-    if (text.length == rooms.getRoomText(roomId).length) {
-      rooms.endGame(roomId);
-    }
+    onTypedTextChanged(socket, text);
   });
-  
 
   socket.on("joinRoom", (roomId: string, username: string, callback) => {
-    console.log(roomId, username)
+    console.log(roomId, username);
     const trimmedUsername = username?.trim();
     const trimmedRoomId = roomId?.trim();
     if (!trimmedRoomId || trimmedRoomId.length === 0)
@@ -52,7 +48,7 @@ io.on("connection", (socket) => {
     });
     socket.join(trimmedRoomId);
     rooms.joinRoom(trimmedRoomId, socket.id, trimmedUsername);
-    callback(ok(rooms.getRoomGameState(trimmedRoomId) !== GameState.WAITING));
+    callback(ok(rooms.getRoomGameState(trimmedRoomId) !== GameState.PREGAME));
   });
 
   socket.on("roomSetReady", (isReady: boolean) => {
@@ -91,6 +87,19 @@ server.listen(3000, () => {
   console.log("server running at http://localhost:3000");
 });
 
+function onTypedTextChanged(socket: Socket, text: string) {
+  const roomId = rooms.getRoomIdFromSocketId(socket.id);
+  const cappedText = text.substring(0, rooms.getRoomText(roomId).length);
+  rooms.setTextOfPlayer(socket.id, cappedText);
+  if (cappedText.length == rooms.getRoomText(roomId).length) {
+    rooms.setPlayerFinished(socket.id);
+    socket.emit("playerFinished");
+    if (rooms.allPlayersFinished(roomId)) {
+      rooms.endGame(roomId);
+    }
+  }
+}
+
 function onClientDataChanged(roomId: string) {
   io.to(roomId).emit(
     "clientDataInRoomChanged",
@@ -113,7 +122,7 @@ function startRoomGameTimer(roomId: string) {
       return;
     }
     io.to(roomId).emit("roomGameTimer", timer++);
-    if (rooms.getRoomGameState(roomId) === GameState.FINISHED) {
+    if (rooms.getRoomGameState(roomId) === GameState.POSTGAME) {
       clearInterval(interval);
       return;
     }
@@ -132,7 +141,8 @@ function startRoomCountDown(roomId: string) {
       clearInterval(interval);
       rooms.setRoomText(
         roomId,
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        "This is a short text example to test the game"
+        //"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
       );
       rooms.startGame(roomId);
       startRoomGameTimer(roomId);

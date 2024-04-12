@@ -18,21 +18,21 @@ function trySignIn() {
 </script>
 
 <template>
-    <h1 class="text-4xl mt-8">How should we call you?</h1>
+    <h1 class="mt-8 text-4xl">How should we call you?</h1>
 
     <p class="text-xl">Please let us know how we should call you</p>
-    <div class="flex flex-col m-4 p-1 px-2 items-center rounded bg-zinc-800">
+    <div class="flex flex-col items-center p-1 px-2 m-4 rounded bg-zinc-800">
         <label for="emailOrUsername" class="text-2xl">email or username</label>
         <input
             id="emailOrUsername"
-            class="p-2 m-2 rounded-md text-black"
+            class="p-2 m-2 text-black rounded-md"
             type="email"
             v-model="emailOrUsername"
             placeholder="Your email address"
         />
         <input
             id="password"
-            class="p-2 m-2 rounded-md text-black"
+            class="p-2 m-2 text-black rounded-md"
             @keypress.enter="trySignIn"
             type="password"
             v-model="password"

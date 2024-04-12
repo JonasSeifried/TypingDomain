@@ -26,20 +26,20 @@ const waitingFor = computed(() => {
                 {{ roomStore.isReady ? 'Cancel' : 'Ready' }}
             </button>
         </div>
-        <hr class="border-t-4 rounded my-2" />
+        <hr class="my-2 border-t-4 rounded" />
         <div
             v-for="client in roomStore.clientsInRoom"
             :key="client.socketId"
             class="flex justify-between w-full"
         >
             <div class="relative w-2/3">
-                <span class="text-2xl max-w-full inline-block truncate peer">{{
+                <span class="inline-block max-w-full text-2xl truncate peer">{{
                     client.username
                 }}</span>
                 <div
                     class="invisible peer-hover:visible absolute bottom-full left-1/2 ml-[-50%] p-2 bg-zinc-800 rounded-xl flex justify-center items-center"
                 >
-                    <span class="px-2 text-2xl z-50">{{ client.username }}</span>
+                    <span class="z-50 px-2 text-2xl">{{ client.username }}</span>
                 </div>
             </div>
 

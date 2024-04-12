@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import FreeForAllReady from './FreeForAllReady.vue';
-import CountDown from '@/components/CountDown.vue';
-import { useRoomStore } from '@/stores/room';
+import FreeForAllReady from './FreeForAllReady.vue'
+import CountDown from '@/components/CountDown.vue'
+import { useRoomStore } from '@/stores/room'
 
-const roomStore = useRoomStore();
-
+const roomStore = useRoomStore()
 </script>
 
 <template>
-    <FreeForAllReady/>
+    <FreeForAllReady />
     <CountDown
-            v-if="roomStore.isWaiting && roomStore.startCountdown"
-            :time="roomStore.startCountdown"
-        />
+        v-if="roomStore.isPreGame && roomStore.startCountdown"
+        :time="roomStore.startCountdown"
+    />
 </template>
