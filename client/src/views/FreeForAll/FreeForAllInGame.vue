@@ -39,43 +39,24 @@ function onDivClick() {
 }
 
 function letterClass(letter: string, index: number): string {
-    return letter === wholeText[index] ? 'green_letter' : 'red_letter'
+    return letter === wholeText[index] ? 'letter_correct' : 'letter_incorrect'
 }
-
-function letterOpacity(index: number): number {
-    if (
-        !typedTextDiv.value ||
-        !parentDivOfTypedDivs.value ||
-        typedTextDiv.value.children.length == 0
-    )
-        return 1
-
-    const letterWidth = typedTextDiv.value.children[0].clientWidth
-    const fadeAfter = Math.round(parentDivOfTypedDivs.value.clientWidth / letterWidth) + 2
-    return Math.min(Math.max((fadeAfter - (typedText.value.length - index)) / fadeAfter, 0), 1)
-}
-
-onMounted(() => {
-    if (!parentDivOfTypedDivs.value || !inputField.value || !typedTextDiv.value) return
-    const maxWidth = `${parentDivOfTypedDivs.value.clientWidth}px`
-    inputField.value.style.maxWidth = maxWidth
-    typedTextDiv.value.style.maxWidth = maxWidth
-})
 </script>
 
 <template>
     <FreeForAllProgressBars />
 
-    <div :onClick="onDivClick" class="flex justify-center w-full h-full">
+    <div :onClick="onDivClick" class="flex justify-center w-full h-full m-8">
         <div
             v-if="roomStore.isPlaying"
+            id="containerDiv"
             ref="containerDiv"
-            class="flex flex-row items-center justify-end w-1/2 h-32 p-8 text-4xl whitespace-pre bg-black rounded bg-opacity-10 letter"
+            class="flex flex-row items-center justify-end w-1/2 h-32 p-8 text-4xl whitespace-pre rounded shadow-[0_5px_60px_15px_rgba(0,0,0,0.75)] shadow-black letter"
         >
             <div ref="parentDivOfTypedDivs" class="grid items-end w-1/2 h-fit">
                 <input
                     ref="inputField"
-                    class="overflow-hidden focus:outline-none text-transparent text-right bg-transparent z-20 row-[1] col-[1]"
+                    class="overflow-hidden focus:outline-none text-transparent text-right bg-transparent z-20 row-[1] col-[1] w-full"
                     :class="inputFieldClass"
                     spellcheck="false"
                     autocapitalize="false"
@@ -87,14 +68,12 @@ onMounted(() => {
                 <div
                     id="typedTextDiv"
                     ref="typedTextDiv"
-                    class="overflow-hidden focus:outline-none z-10 flex justify-end row-[1] col-[1]"
+                    class="overflow-hidden focus:outline-none z-10 flex justify-end row-[1] col-[1] w-full"
                 >
                     <span
                         v-for="(item, index) in typedText"
                         :key="index"
-                        class=""
                         :class="letterClass(item, index)"
-                        :style="{ opacity: letterOpacity(index) }"
                     >
                         {{ item }}
                     </span>
@@ -106,13 +85,17 @@ onMounted(() => {
 </template>
 
 <style scoped>
+#typedTextDiv {
+    -webkit-mask-image: linear-gradient(to left, black, transparent);
+    mask-image: linear-gradient (to left, black, transparent);
+}
 .letter {
     font-family: Hack, monospace;
 }
-.green_letter {
+.letter_correct {
     color: rgb(30, 153, 30);
 }
-.red_letter {
+.letter_incorrect {
     color: rgb(170, 26, 26);
     text-decoration: underline;
 }

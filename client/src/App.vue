@@ -3,9 +3,12 @@ import { onBeforeMount } from 'vue'
 import { socket, bindEvents } from './socket'
 import { useAuthStore } from './stores/auth'
 import { useSocketStore } from './stores/socket'
+import { useRouter } from 'vue-router'
+import { HomeRoute } from './router'
 
 const authStore = useAuthStore()
 const connectionStore = useSocketStore()
+const router = useRouter()
 
 onBeforeMount(() => {
     socket.off()
@@ -15,17 +18,26 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <header class="flex justify-between">
+    <header class="grid w-full grid-cols-3 justify-evenly">
         <button
             v-if="authStore.isSignedIn"
-            class="m-4 text-xl hover:text-white hover:scale-110"
+            class="p-4 text-xl hover:text-white w-fit hover:scale-110"
             @click="authStore.signOut"
         >
-            Logout
+            Sign Out
         </button>
-        <span class="m-4 text-xl">{{ authStore.username }}</span>
+        <a
+            href="#"
+            class="col-start-2 m-4 text-2xl text-center text-white"
+            @click="router.push(HomeRoute)"
+        >
+            Typing Domain
+        </a>
+        <span class="m-4 text-xl text-right">{{ authStore.username }}</span>
     </header>
-    <main class="flex flex-col items-center mx-10 grow">
-        <RouterView />
+    <main class="flex justify-center w-full h-full">
+        <div class="container flex flex-col items-center h-full">
+            <RouterView />
+        </div>
     </main>
 </template>

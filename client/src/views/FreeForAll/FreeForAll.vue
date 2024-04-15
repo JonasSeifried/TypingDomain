@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRoomStore } from '@/stores/room'
 import FreeForAllInGame from './FreeForAllInGame.vue'
@@ -18,14 +18,17 @@ onBeforeMount(() => {
         }
     })
 })
+
+onUnmounted(() => roomStore.leaveRoom())
 </script>
 
 <template>
-    <div class="flex flex-col items-center w-full h-full mx-10">
-        <h1 class="mb-5 text-2xl text-white">Typing Domain</h1>
-        <span v-if="!roomStore.isPreGame" class="relative right-0 ml-20">{{
-            roomStore.gameTimer
-        }}</span>
+    <span v-if="!roomStore.isPreGame" class="self-end text-xl text-right"
+        >{{
+            roomStore.isInGame ? Math.round(roomStore.playTime / 1000) : roomStore.playTime / 1000
+        }}s</span
+    >
+    <div class="flex flex-col items-center w-full">
         <FreeForAllPreGame v-if="roomStore.isPreGame" />
         <FreeForAllInGame v-if="roomStore.isInGame" />
         <FreeForAllPostGame v-if="roomStore.isPostGame" />

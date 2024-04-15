@@ -12,10 +12,10 @@ export const useRoomStore = defineStore('room', () => {
     const gameState = ref<GameState>(GameState.PREGAME)
     const clientsInRoom = ref<ClientData[]>([])
     const textOfRoom = ref<string>('')
-    const eventsBound = ref<boolean>(false)
     const startCountdown = ref<number | undefined>(undefined)
-    const gameTimer = ref<number>(0)
+    const playTime = ref<number>(0)
     const authStore = useAuthStore()
+    let eventsBound = false
 
     async function joinRoom(roomId: string, callback: (res: Result<void>) => void) {
         socket.timeout(5000).emit('joinRoom', roomId, authStore.username!, (timeoutErr, res) => {
@@ -28,12 +28,22 @@ export const useRoomStore = defineStore('room', () => {
                 callback(err(res.error))
                 return
             }
-
+            isReady.value = false
+            isFinished.value = false
+            startCountdown.value = undefined
             joinedRoom.value = roomId
             isSpectator.value = res.result
             console.log(`joined room ${roomId} as a `, res.result ? 'spectator' : 'player')
             callback(ok())
         })
+    }
+
+    function leaveRoom() {
+        socket.emit('leaveRoom')
+        isReady.value = false
+        startCountdown.value = undefined
+        isFinished.value = false
+        joinedRoom.value = null
     }
 
     function toggleReady() {
@@ -62,11 +72,12 @@ export const useRoomStore = defineStore('room', () => {
     })
 
     function bindEvents() {
-        if (eventsBound.value) return
+        if (eventsBound) return
 
         socket.on('roomDataChanged', (clientRoomData) => {
             gameState.value = clientRoomData.state
             textOfRoom.value = clientRoomData.text
+            playTime.value = clientRoomData.playTime
         })
 
         socket.on('clientDataInRoomChanged', (clients) => {
@@ -77,15 +88,11 @@ export const useRoomStore = defineStore('room', () => {
             startCountdown.value = countdown
         })
 
-        socket.on('roomGameTimer', (gameTime) => {
-            gameTimer.value = gameTime
-        })
-
         socket.on('playerFinished', () => {
             isFinished.value = true
         })
 
-        eventsBound.value = true
+        eventsBound = true
     }
 
     return {
@@ -102,8 +109,9 @@ export const useRoomStore = defineStore('room', () => {
         isPostGame,
         isPlaying,
         startCountdown,
-        gameTimer,
+        playTime,
         joinRoom,
+        leaveRoom,
         toggleReady,
         isInRoom,
         bindEvents

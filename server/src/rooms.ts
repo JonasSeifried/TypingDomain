@@ -15,6 +15,7 @@ export class Rooms {
         typedText: "",
         isReady: false,
         isFinished: false,
+        finishedAt: -1,
       });
     } else {
       room.spectators.set(socketId, {
@@ -23,6 +24,7 @@ export class Rooms {
         typedText: "",
         isReady: false,
         isFinished: false,
+        finishedAt: -1,
       });
     }
     this.socketIdsToRooms.set(socketId, roomId);
@@ -59,6 +61,7 @@ export class Rooms {
     const room = this.getRoomOfClient(socketId);
     if (!room.players.has(socketId)) throw new Error("User is not a player");
     room.players.get(socketId).isFinished = true;
+    room.players.get(socketId).finishedAt = this.getRoomPlayTime(room.id);
     this.emitClientDataChangedEvent(room.id);
   }
 
@@ -111,6 +114,7 @@ export class Rooms {
       spectators: new Map(),
       gameState: GameState.PREGAME,
       text: "This room hasnt begun yet",
+      playTime: 0,
     });
   }
 
@@ -121,6 +125,15 @@ export class Rooms {
   public setRoomText(roomId: string, text: string): void {
     this.getRoom(roomId).text = text;
     this.emitRoomDataChangedEvent(roomId);
+  }
+
+  public setRoomPlayTime(roomId: string, time: number): void {
+    this.getRoom(roomId).playTime = time;
+    // ? This should probably emitRoomDataChangedEvent but that would result in alot of socket events
+  }
+
+  public getRoomPlayTime(roomId: string): number {
+    return this.getRoom(roomId).playTime;
   }
 
   public onCliendDataChanged(func: (roomID) => void): void {

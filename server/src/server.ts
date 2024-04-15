@@ -43,9 +43,7 @@ io.on("connection", (socket) => {
     if (!trimmedUsername || trimmedUsername.length === 0)
       return callback(err(Error("Username is required")));
 
-    socket.rooms.forEach((room) => {
-      socket.leave(room);
-    });
+    leaveAllRooms(socket);
     socket.join(trimmedRoomId);
     rooms.joinRoom(trimmedRoomId, socket.id, trimmedUsername);
     callback(ok(rooms.getRoomGameState(trimmedRoomId) !== GameState.PREGAME));
@@ -62,6 +60,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} disconnected`);
   });
+
+  socket.on("leaveRoom", () => leaveAllRooms(socket));
 });
 
 io.of("/").adapter.on("create-room", (roomId) => {
@@ -111,33 +111,43 @@ function onRoomDataChanged(roomId: string) {
   io.to(roomId).emit("roomDataChanged", {
     state: rooms.getRoomGameState(roomId),
     text: rooms.getRoomText(roomId),
+    playTime: rooms.getRoomPlayTime(roomId),
   });
 }
 
-function startRoomGameTimer(roomId: string) {
-  let timer = 0;
-  const interval = setInterval(() => {
-    if (!rooms.hasRoom(roomId)) {
-      clearInterval(interval);
+function startRoomPlayTimer(roomId: string) {
+  const start = Date.now();
+  const roomPlayTimerInterval = setInterval(() => {
+    if (
+      !rooms.hasRoom(roomId) ||
+      rooms.getRoomGameState(roomId) === GameState.POSTGAME
+    ) {
+      clearInterval(roomPlayTimerInterval);
       return;
     }
-    io.to(roomId).emit("roomGameTimer", timer++);
-    if (rooms.getRoomGameState(roomId) === GameState.POSTGAME) {
-      clearInterval(interval);
-      return;
-    }
-  }, 1000);
+    rooms.setRoomPlayTime(roomId, Date.now() - start);
+  }, 100);
+
+  const updateUiInterval = setInterval(() => {
+    if (
+      !rooms.hasRoom(roomId) ||
+      rooms.getRoomGameState(roomId) === GameState.POSTGAME
+    )
+      clearInterval(updateUiInterval);
+    onRoomDataChanged(roomId);
+  }, 100);
 }
 
 function startRoomCountDown(roomId: string) {
-  let countdown = 300;
+  const end = Date.now() + 3000;
   const interval = setInterval(() => {
     if (!rooms.hasRoom(roomId)) {
       clearInterval(interval);
       return;
     }
-    io.to(roomId).emit("roomStartRoundCountDown", countdown / 100);
-    if (countdown === 0) {
+    const delta = end - Date.now();
+    io.to(roomId).emit("roomStartRoundCountDown", delta / 1000);
+    if (delta <= 0) {
       clearInterval(interval);
       rooms.setRoomText(
         roomId,
@@ -145,9 +155,14 @@ function startRoomCountDown(roomId: string) {
         //"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
       );
       rooms.startGame(roomId);
-      startRoomGameTimer(roomId);
+      startRoomPlayTimer(roomId);
       return;
     }
-    countdown--;
-  }, 1);
+  }, 10);
+}
+
+function leaveAllRooms(socket: Socket) {
+  socket.rooms.forEach((room) => {
+    socket.leave(room);
+  });
 }

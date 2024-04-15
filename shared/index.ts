@@ -33,6 +33,7 @@ export type ClientData = {
   typedText: string;
   isReady: boolean;
   isFinished: boolean;
+  finishedAt: number;
 };
 
 export type SocketData = {};
@@ -43,6 +44,7 @@ export type RoomData = {
   spectators: Map<string, ClientData>;
   gameState: GameState;
   text: string;
+  playTime: number;
 };
 
 export enum GameState {
@@ -53,9 +55,12 @@ export enum GameState {
 
 export type ServerToCLientEvents = {
   clientDataInRoomChanged: (clients: ClientData[]) => void;
-  roomDataChanged: (clientRoomData: { state: GameState; text: string }) => void;
+  roomDataChanged: (clientRoomData: {
+    state: GameState;
+    text: string;
+    playTime: number;
+  }) => void;
   roomStartRoundCountDown: (countdown: number) => void;
-  roomGameTimer: (timer: number) => void;
   playerFinished: () => void;
 };
 
@@ -67,4 +72,5 @@ export type ClientToServerEvents = {
   ) => void;
   textFieldInput: (text: string) => void;
   roomSetReady: (ready: boolean) => void;
+  leaveRoom: () => void;
 };

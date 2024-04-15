@@ -14,7 +14,7 @@ import { ensureError, err, ok, type Result } from 'shared'
 const auth = getAuth()
 setPersistence(auth, browserLocalPersistence)
 
-export async function signUp(
+export async function emailSignUp(
     username: string,
     email: string,
     password: string
@@ -44,8 +44,8 @@ export async function signIn(email: string, password: string): Promise<Result<Us
     try {
         const user = (await signInWithEmailAndPassword(auth, email, password)).user
         return ok(user)
-    } catch (e) {
-        return err(ensureError(e))
+    } catch (error) {
+        return err(ensureError(error))
     }
 }
 

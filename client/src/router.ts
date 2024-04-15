@@ -2,21 +2,18 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from './views/HomePage.vue'
 import FreeForAll from './views/FreeForAll/FreeForAll.vue'
 import { useAuthStore } from './stores/auth'
-import SignIn from './views/auth/SignIn.vue'
-import SignUp from './views/auth/SignUp.vue'
 import FreeForAllLobby from './views/FreeForAll/FreeForAllLobby.vue'
+import AuthUser from './views/auth/AuthUser.vue'
 
 export const HomeRoute = '/'
-export const LoginRoute = '/login'
-export const RegisterRoute = '/register'
-export const FreeFforAllLobbyRoute = '/ffa/lobby'
+export const AuthUserRoute = '/auth'
+export const FreeForAllLobbyRoute = '/ffa/lobby'
 export const FreeForAllRoomRoute = (roomId: string) => `/ffa/room/${roomId}`
 
 const routes = [
     { path: HomeRoute, component: HomePage },
-    { path: LoginRoute, component: SignIn },
-    { path: RegisterRoute, component: SignUp },
-    { path: FreeFforAllLobbyRoute, component: FreeForAllLobby, meta: { requiresAuth: true } },
+    { path: AuthUserRoute, component: AuthUser },
+    { path: FreeForAllLobbyRoute, component: FreeForAllLobby, meta: { requiresAuth: true } },
     { path: FreeForAllRoomRoute(':roomId'), component: FreeForAll, meta: { requiresAuth: true } }
 ]
 
@@ -30,6 +27,7 @@ router.beforeEach(async (to) => {
     await auth.authReady()
     if (to.meta.requiresAuth && !auth.isSignedIn) {
         auth.returnURL = to.fullPath
-        return LoginRoute
+        console.log('Redirecting to', AuthUserRoute)
+        return AuthUserRoute
     }
 })
