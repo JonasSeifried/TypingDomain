@@ -12,9 +12,10 @@ var roomId = route.params.roomId as string
 
 onBeforeMount(() => {
     if (roomStore.isInRoom()) return
-    roomStore.joinRoom(roomId, (err) => {
-        if (!err.success) {
-            console.error(err.error.message)
+    roomStore.joinRoom(roomId, (res) => {
+        if (res.isErr()) {
+            // Todo: Error handling
+            console.error(res.error.message)
         }
     })
 })

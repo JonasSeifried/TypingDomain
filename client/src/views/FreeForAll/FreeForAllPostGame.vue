@@ -9,11 +9,9 @@ const sortedClientsStatistc = computed(() => {
     const playersWithStatistics = [...roomStore.clientsInRoom].map((client) => {
         return { client, statistics: calculateStatistics(client, roomStore.textOfRoom) }
     })
-    const sorted = playersWithStatistics.sort((a, b) => {
+    return playersWithStatistics.sort((a, b) => {
         return b.statistics.lettersPerMinute - a.statistics.lettersPerMinute
     })
-    console.log(sorted)
-    return sorted
 })
 
 function calculateStatistics(clientData: ClientData, roomText: string) {

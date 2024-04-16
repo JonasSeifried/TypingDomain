@@ -1,6 +1,7 @@
 import { socket } from '@/socket'
 import { defineStore } from 'pinia'
-import { err, GameState, ok, type ClientData, type Result } from 'shared'
+import { GameState, type ClientData } from 'shared'
+import { err, fromWebResult, ok, type Result } from 'shared/result'
 import { computed, ref } from 'vue'
 import { useAuthStore } from './auth'
 
@@ -18,24 +19,26 @@ export const useRoomStore = defineStore('room', () => {
     let eventsBound = false
 
     async function joinRoom(roomId: string, callback: (res: Result<void>) => void) {
-        socket.timeout(5000).emit('joinRoom', roomId, authStore.username!, (timeoutErr, res) => {
-            if (timeoutErr) {
-                callback(err(timeoutErr))
-                return
-            }
+        socket
+            .timeout(5000)
+            .emit('joinRoom', roomId, authStore.username!, (timeoutErr, webResult) => {
+                if (timeoutErr) {
+                    callback(err(timeoutErr))
+                    return
+                }
+                const res = fromWebResult(webResult)
 
-            if (!res.success) {
-                callback(err(res.error))
-                return
-            }
-            isReady.value = false
-            isFinished.value = false
-            startCountdown.value = undefined
-            joinedRoom.value = roomId
-            isSpectator.value = res.result
-            console.log(`joined room ${roomId} as a `, res.result ? 'spectator' : 'player')
-            callback(ok())
-        })
+                if (res.isErr()) {
+                    callback(err(res.error))
+                    return
+                }
+                isReady.value = false
+                isFinished.value = false
+                startCountdown.value = undefined
+                joinedRoom.value = roomId
+                isSpectator.value = res.value
+                callback(ok())
+            })
     }
 
     function leaveRoom() {
@@ -74,14 +77,25 @@ export const useRoomStore = defineStore('room', () => {
     function bindEvents() {
         if (eventsBound) return
 
-        socket.on('roomDataChanged', (clientRoomData) => {
+        socket.on('roomDataChanged', (webResult) => {
+            const result = fromWebResult(webResult)
+            if (result.isErr()) {
+                console.error(result.error)
+                return
+            }
+            const clientRoomData = result.value
             gameState.value = clientRoomData.state
             textOfRoom.value = clientRoomData.text
             playTime.value = clientRoomData.playTime
         })
 
-        socket.on('clientDataInRoomChanged', (clients) => {
-            clientsInRoom.value = clients
+        socket.on('clientDataInRoomChanged', (webResult) => {
+            const result = fromWebResult(webResult)
+            if (result.isErr()) {
+                console.error(result.error)
+                return
+            }
+            clientsInRoom.value = result.value
         })
 
         socket.on('roomStartRoundCountDown', (countdown) => {

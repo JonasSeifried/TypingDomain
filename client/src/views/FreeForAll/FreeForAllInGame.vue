@@ -2,7 +2,7 @@
 import { socket } from '@/socket'
 import FreeForAllProgressBars from './FreeForAllProgressBars.vue'
 import { useRoomStore } from '@/stores/room'
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const roomStore = useRoomStore()
 

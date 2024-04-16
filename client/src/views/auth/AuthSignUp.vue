@@ -11,7 +11,7 @@ const { signUp } = useAuthStore()
 async function trySignUp() {
     if (username.value.trim() === '') return
     const res = await signUp(username.value, email.value, password.value)
-    if (!res.success) errorText.value = res.error.message
+    if (res.isErr()) errorText.value = res.error.message
 }
 </script>
 

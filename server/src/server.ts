@@ -2,15 +2,14 @@ import express from "express";
 import { createServer } from "node:http";
 import { Server, Socket } from "socket.io";
 import {
+  ClientRoomData,
   ClientToServerEvents,
-  err,
   GameState,
-  ok,
   ServerToCLientEvents,
   SocketData,
 } from "shared";
+import { err, fromResult, ok, Result, webErr, webOk } from "shared/result";
 import { Rooms } from "./rooms";
-import { on } from "node:events";
 
 const app = express();
 const server = createServer(app);
@@ -39,19 +38,29 @@ io.on("connection", (socket) => {
     const trimmedUsername = username?.trim();
     const trimmedRoomId = roomId?.trim();
     if (!trimmedRoomId || trimmedRoomId.length === 0)
-      return callback(err(Error("Room name is required")));
+      return callback(webErr(Error("Room name is required")));
     if (!trimmedUsername || trimmedUsername.length === 0)
-      return callback(err(Error("Username is required")));
+      return callback(webErr(Error("Username is required")));
 
     leaveAllRooms(socket);
     socket.join(trimmedRoomId);
     rooms.joinRoom(trimmedRoomId, socket.id, trimmedUsername);
-    callback(ok(rooms.getRoomGameState(trimmedRoomId) !== GameState.PREGAME));
+    const result = rooms.getRoomGameState(trimmedRoomId);
+    if (result.isErr()) {
+      callback(fromResult(result));
+      return;
+    }
+    callback(webOk(result.value !== GameState.PREGAME));
   });
 
   socket.on("roomSetReady", (isReady: boolean) => {
     rooms.setClientReady(socket.id, isReady);
-    const roomId = rooms.getRoomIdFromSocketId(socket.id);
+    const result = rooms.getRoomIdFromSocketId(socket.id);
+    if (result.isErr()) {
+      console.warn(result.error);
+      return;
+    }
+    const roomId = result.value;
     if (rooms.roomReady(roomId)) {
       startRoomCountDown(roomId);
     }
@@ -88,10 +97,23 @@ server.listen(3000, () => {
 });
 
 function onTypedTextChanged(socket: Socket, text: string) {
-  const roomId = rooms.getRoomIdFromSocketId(socket.id);
-  const cappedText = text.substring(0, rooms.getRoomText(roomId).length);
+  const result = rooms.getRoomIdFromSocketId(socket.id);
+  if (result.isErr()) {
+    // Todo: handle error
+    console.warn(result.error);
+    return;
+  }
+  const roomId = result.value;
+  const resultRoomText = rooms.getRoomText(roomId);
+  if (resultRoomText.isErr()) {
+    // Todo: handle error
+    console.warn(resultRoomText.error);
+    return;
+  }
+  const roomText = resultRoomText.value;
+  const cappedText = text.substring(0, roomText.length);
   rooms.setTextOfPlayer(socket.id, cappedText);
-  if (cappedText.length == rooms.getRoomText(roomId).length) {
+  if (cappedText.length == roomText.length) {
     rooms.setPlayerFinished(socket.id);
     socket.emit("playerFinished");
     if (rooms.allPlayersFinished(roomId)) {
@@ -103,24 +125,39 @@ function onTypedTextChanged(socket: Socket, text: string) {
 function onClientDataChanged(roomId: string) {
   io.to(roomId).emit(
     "clientDataInRoomChanged",
-    rooms.getClientDataOfRoom(roomId)
+    fromResult(rooms.getClientDataOfRoom(roomId))
   );
 }
 
 function onRoomDataChanged(roomId: string) {
-  io.to(roomId).emit("roomDataChanged", {
-    state: rooms.getRoomGameState(roomId),
-    text: rooms.getRoomText(roomId),
-    playTime: rooms.getRoomPlayTime(roomId),
+  io.to(roomId).emit(
+    "roomDataChanged",
+    fromResult(buildClientRoomData(roomId))
+  );
+}
+
+function buildClientRoomData(roomId: string): Result<ClientRoomData> {
+  const resultGameState = rooms.getRoomGameState(roomId);
+  if (resultGameState.isErr()) return err(resultGameState.error);
+  const resultText = rooms.getRoomText(roomId);
+  if (resultText.isErr()) return err(resultText.error);
+  const resultPlayTime = rooms.getRoomPlayTime(roomId);
+  if (resultPlayTime.isErr()) return err(resultPlayTime.error);
+  return ok({
+    state: resultGameState.value,
+    text: resultText.value,
+    playTime: resultPlayTime.value,
   });
 }
 
 function startRoomPlayTimer(roomId: string) {
   const start = Date.now();
   const roomPlayTimerInterval = setInterval(() => {
+    const result = rooms.getRoomGameState(roomId);
     if (
       !rooms.hasRoom(roomId) ||
-      rooms.getRoomGameState(roomId) === GameState.POSTGAME
+      result.isErr() ||
+      result.value === GameState.POSTGAME
     ) {
       clearInterval(roomPlayTimerInterval);
       return;
@@ -129,9 +166,11 @@ function startRoomPlayTimer(roomId: string) {
   }, 100);
 
   const updateUiInterval = setInterval(() => {
+    const result = rooms.getRoomGameState(roomId);
     if (
       !rooms.hasRoom(roomId) ||
-      rooms.getRoomGameState(roomId) === GameState.POSTGAME
+      result.isErr() ||
+      result.value === GameState.POSTGAME
     )
       clearInterval(updateUiInterval);
     onRoomDataChanged(roomId);

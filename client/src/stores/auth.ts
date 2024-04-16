@@ -7,7 +7,7 @@ import {
     signOut as firebaseSignOut
 } from '@/firebase/firebaseAuth'
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth'
-import { err, ok, type Result } from 'shared'
+import { err, ok, type Result } from 'shared/result'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { fireStore } from '@/firebase/firebaseInitialization'
 import { HomeRoute } from '@/router'
@@ -39,7 +39,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function signIn(name: string, password: string): Promise<Result<void>> {
         const res = await firebaseSignIn(name, password)
-        if (!res.success) return res
+        if (res.isErr()) return res
 
         router.push(returnURL.value || HomeRoute)
         return ok()
@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
         password: string
     ): Promise<Result<void>> {
         const res = await firebaseSignUp(username, email, password)
-        if (!res.success) return res
+        if (res.isErr()) return res
 
         router.push(returnURL.value || HomeRoute)
         return ok()
@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
             username.value = null
         } else {
             const res = await firebaseSignOut()
-            if (!res.success) return res
+            if (res.isErr()) return res
         }
         router.push(HomeRoute)
         return ok()
@@ -82,7 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function authReady(): Promise<void> {
         await auth.authStateReady()
-        if (user.value == null) return
+        if (user.value === null) return
         if (username.value !== null) return
         await new Promise((resolve) => {
             const unsubscribe = watchEffect(() => {

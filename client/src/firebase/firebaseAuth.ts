@@ -9,7 +9,7 @@ import {
     setPersistence,
     browserLocalPersistence
 } from 'firebase/auth'
-import { ensureError, err, ok, type Result } from 'shared'
+import { ensureError, err, ok, type Result } from 'shared/result'
 
 const auth = getAuth()
 setPersistence(auth, browserLocalPersistence)
@@ -22,19 +22,17 @@ export async function emailSignUp(
     const q = query(collection(fireStore, 'users'), where('username', '==', username))
     const querySnapshot = await getDocs(q)
     if (!querySnapshot.empty) {
-        return err(new Error('Username already taken'))
+        return err(Error('Username already taken'))
     }
     const res = await createUser(email, password)
-    if (!res.success) {
-        return res
-    }
+    if (res.isErr()) return res
     try {
         await addDoc(collection(fireStore, 'users'), {
             username: username,
             primaryEmail: email
         })
     } catch (error) {
-        return { success: false, error: ensureError(error) }
+        return err(ensureError(error))
     }
     return res
 }
@@ -53,9 +51,9 @@ export async function signOut(): Promise<Result<void>> {
     const auth = getAuth()
     try {
         await firebaseSignOut(auth)
-        return { success: true, result: undefined }
+        return ok()
     } catch (e) {
-        return { success: false, error: ensureError(e) }
+        return err(ensureError(e))
     }
 }
 

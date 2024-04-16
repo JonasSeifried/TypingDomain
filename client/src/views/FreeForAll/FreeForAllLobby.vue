@@ -15,7 +15,8 @@ const { joinRoom } = useRoomStore()
 function onSubmit() {
     if (!validate()) return
     joinRoom(roomId.value, (res) => {
-        if (!res.success) {
+        if (res.isErr()) {
+            // Todo: Error handling
             console.error(res.error)
             return
         }

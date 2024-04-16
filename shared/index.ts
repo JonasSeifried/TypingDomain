@@ -1,31 +1,4 @@
-export type Result<T, E extends Error = Error> =
-  | { success: true; result: T }
-  | { success: false; error: E };
-
-export function ok<T>(result: T): Result<T>;
-export function ok(): Result<void>;
-export function ok<T>(result?: T): Result<T> | Result<void> {
-  if (result === undefined) return { success: true, result: undefined };
-  return { success: true, result: result };
-}
-
-export function err<E extends Error = Error>(error: E): Result<any, E> {
-  return { success: false, error };
-}
-
-export function ensureError(value: unknown): Error {
-  if (value instanceof Error) return value;
-
-  let stringified = "[Unable to stringify the thrown value]";
-  try {
-    stringified = JSON.stringify(value);
-  } catch {}
-
-  const error = new Error(
-    `This value was thrown as is, not through an Error: ${stringified}`
-  );
-  return error;
-}
+import { WebResult } from "./result";
 
 export type ClientData = {
   socketId: string;
@@ -47,6 +20,12 @@ export type RoomData = {
   playTime: number;
 };
 
+export type ClientRoomData = {
+  state: GameState;
+  text: string;
+  playTime: number;
+};
+
 export enum GameState {
   PREGAME,
   INGAME,
@@ -54,12 +33,8 @@ export enum GameState {
 }
 
 export type ServerToCLientEvents = {
-  clientDataInRoomChanged: (clients: ClientData[]) => void;
-  roomDataChanged: (clientRoomData: {
-    state: GameState;
-    text: string;
-    playTime: number;
-  }) => void;
+  clientDataInRoomChanged: (clients: WebResult<ClientData[]>) => void;
+  roomDataChanged: (clientRoomData: WebResult<ClientRoomData>) => void;
   roomStartRoundCountDown: (countdown: number) => void;
   playerFinished: () => void;
 };
@@ -68,7 +43,7 @@ export type ClientToServerEvents = {
   joinRoom: (
     roomId: string,
     username: string,
-    callback: (joinedAsSpectator: Result<boolean>) => void
+    callback: (joinedAsSpectator: WebResult<boolean>) => void
   ) => void;
   textFieldInput: (text: string) => void;
   roomSetReady: (ready: boolean) => void;

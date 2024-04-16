@@ -8,7 +8,7 @@ const authStore = useAuthStore()
 
 async function signInAsGuest() {
     const res = authStore.signInAsGuest(username.value)
-    if (!res.success) errorText.value = res.error.message
+    if (res.isErr()) errorText.value = res.error.message
 }
 </script>
 

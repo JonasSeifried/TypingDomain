@@ -1,4 +1,5 @@
 import { ClientData, GameState, RoomData } from "shared";
+import { err, ok, Result } from "shared/result";
 
 export class Rooms {
   private roomData: Map<string, RoomData> = new Map();
@@ -6,9 +7,17 @@ export class Rooms {
   private onClientDataChangedEventHandlers: Function[] = [];
   private onRoomDataChangedEventHandlers: Function[] = [];
 
-  public joinRoom(roomId: string, socketId: string, username: string): void {
-    const room = this.getRoom(roomId);
-    if (this.getRoomGameState(roomId) == GameState.PREGAME) {
+  public joinRoom(
+    roomId: string,
+    socketId: string,
+    username: string
+  ): Result<void> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    const room = result.value;
+    const resultGameState = this.getRoomGameState(roomId);
+    if (resultGameState.isErr()) return resultGameState;
+    if (resultGameState.value == GameState.PREGAME) {
       room.players.set(socketId, {
         socketId,
         username,
@@ -32,73 +41,101 @@ export class Rooms {
     this.emitRoomDataChangedEvent(roomId);
   }
 
-  public leaveRoom(roomId: string, socketId: string): boolean {
-    const room = this.getRoom(roomId);
+  public leaveRoom(roomId: string, socketId: string): Result<boolean> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    const room = result.value;
     room.players.delete(socketId);
     room.spectators.delete(socketId);
     const deleted = this.socketIdsToRooms.delete(socketId);
     if (deleted) this.emitClientDataChangedEvent(roomId);
-    return deleted;
+    return ok(deleted);
   }
 
-  public setClientReady(socketId: string, ready: boolean): void {
-    const room = this.getRoomOfClient(socketId);
-    if (!room.players.has(socketId)) throw new Error("User is not a player");
+  public setClientReady(socketId: string, ready: boolean): Result<void> {
+    const result = this.getRoomOfClient(socketId);
+    if (result.isErr()) return result;
+    const room = result.value;
+    if (!room.players.has(socketId)) return err(Error("User is not a player"));
     room.players.get(socketId).isReady = ready;
     this.emitClientDataChangedEvent(room.id);
   }
 
-  public setTextOfPlayer(socketId: string, text: string): void {
-    const room = this.getRoomOfClient(socketId);
-    if (!room.players.has(socketId)) throw new Error("User is not a player");
+  public setTextOfPlayer(socketId: string, text: string): Result<void> {
+    const result = this.getRoomOfClient(socketId);
+    if (result.isErr()) return result;
+    const room = result.value;
+    if (!room.players.has(socketId)) return err(Error("User is not a player"));
     if (room.players.get(socketId).isFinished)
-      throw new Error("User is already finished");
+      return err(Error("User is already finished"));
     room.players.get(socketId).typedText = text;
     this.emitClientDataChangedEvent(room.id);
   }
 
-  public setPlayerFinished(socketId: string): void {
-    const room = this.getRoomOfClient(socketId);
+  public setPlayerFinished(socketId: string): Result<void> {
+    const result = this.getRoomOfClient(socketId);
+    if (result.isErr()) return result;
+    const room = result.value;
     if (!room.players.has(socketId)) throw new Error("User is not a player");
     room.players.get(socketId).isFinished = true;
-    room.players.get(socketId).finishedAt = this.getRoomPlayTime(room.id);
+    const resultRoomTime = this.getRoomPlayTime(room.id);
+    if (resultRoomTime.isErr()) return resultRoomTime;
+    room.players.get(socketId).finishedAt = resultRoomTime.value;
     this.emitClientDataChangedEvent(room.id);
   }
 
-  public allPlayersFinished(roomId: string): boolean {
-    const room = this.getRoom(roomId);
-    return !Array.from(room.players).some(([_, player]) => !player.isFinished);
+  public allPlayersFinished(roomId: string): Result<boolean> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    return ok(
+      !Array.from(result.value.players).some(
+        ([_, player]) => !player.isFinished
+      )
+    );
   }
 
-  public getClientDataOfRoom(roomId: string): ClientData[] {
-    return Array.from(this.getRoom(roomId).players.values());
+  public getClientDataOfRoom(roomId: string): Result<ClientData[]> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    return ok(Array.from(result.value.players.values()));
   }
 
-  public getRoomIdFromSocketId(socketId: string): string {
-    return this.getRoomOfClient(socketId).id;
+  public getRoomIdFromSocketId(socketId: string): Result<string> {
+    const result = this.getRoomOfClient(socketId);
+    if (result.isErr()) return result;
+    return ok(result.value.id);
   }
 
-  public getRoomGameState(roomId: string): GameState {
-    return this.getRoom(roomId).gameState;
+  public getRoomGameState(roomId: string): Result<GameState> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    return ok(result.value.gameState);
   }
 
-  public startGame(roomId: string): void {
+  public startGame(roomId: string): Result<void> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
     if (!this.roomReady(roomId)) {
-      throw new Error("Can't start Game, not all clients are ready");
+      return err(Error("Can't start Game, not all clients are ready"));
     }
-    this.getRoom(roomId).gameState = GameState.INGAME;
+    result.value.gameState = GameState.INGAME;
     this.emitRoomDataChangedEvent(roomId);
   }
 
-  public endGame(roomId: string): void {
-    this.getRoom(roomId).gameState = GameState.POSTGAME;
+  public endGame(roomId: string): Result<void> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    result.value.gameState = GameState.POSTGAME;
     this.emitRoomDataChangedEvent(roomId);
   }
 
-  public roomReady(roomId: string): boolean {
-    const clients = this.getRoom(roomId).players;
-    return !Array.from(clients).some(
-      ([_, clientData]) => clientData.isReady === false
+  public roomReady(roomId: string): Result<boolean> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    return ok(
+      !Array.from(result.value.players).some(
+        ([_, clientData]) => clientData.isReady === false
+      )
     );
   }
 
@@ -118,22 +155,29 @@ export class Rooms {
     });
   }
 
-  public getRoomText(roomId: string): string {
-    return this.getRoom(roomId).text;
+  public getRoomText(roomId: string): Result<string> {
+    const result = this.getRoom(roomId);
+    return result.isErr() ? result : ok(result.value.text);
   }
 
-  public setRoomText(roomId: string, text: string): void {
-    this.getRoom(roomId).text = text;
+  public setRoomText(roomId: string, text: string): Result<void> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    result.value.text = text;
     this.emitRoomDataChangedEvent(roomId);
   }
 
-  public setRoomPlayTime(roomId: string, time: number): void {
-    this.getRoom(roomId).playTime = time;
+  public setRoomPlayTime(roomId: string, time: number): Result<void> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    result.value.playTime = time;
     // ? This should probably emitRoomDataChangedEvent but that would result in alot of socket events
   }
 
-  public getRoomPlayTime(roomId: string): number {
-    return this.getRoom(roomId).playTime;
+  public getRoomPlayTime(roomId: string): Result<number> {
+    const result = this.getRoom(roomId);
+    if (result.isErr()) return result;
+    return ok(result.value.playTime);
   }
 
   public onCliendDataChanged(func: (roomID) => void): void {
@@ -148,20 +192,16 @@ export class Rooms {
     return this.roomData.has(roomId);
   }
 
-  private getRoomOfClient(socketId: string): RoomData {
+  private getRoomOfClient(socketId: string): Result<RoomData> {
     const roomId = this.socketIdsToRooms.get(socketId);
-    if (!roomId) {
-      throw new Error(`Client "${socketId}" is not in a room`);
-    }
-    return this.getRoom(roomId);
+    return !roomId
+      ? err(Error(`Client "${socketId}" is not in a room`))
+      : this.getRoom(roomId);
   }
 
-  private getRoom(roomId: string): RoomData {
+  private getRoom(roomId: string): Result<RoomData> {
     const room = this.roomData.get(roomId);
-    if (!room) {
-      throw new Error("Room does not exist");
-    }
-    return room;
+    return !room ? err(Error("Room does not exist")) : ok(room);
   }
 
   private emitClientDataChangedEvent(roomId: string): void {
