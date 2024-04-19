@@ -1,4 +1,4 @@
-import { WebResult } from "./result";
+import { type WebResult } from "./result";
 
 export type ClientData = {
   socketId: string;
