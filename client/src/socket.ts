@@ -4,6 +4,7 @@ import { useSocketStore } from './stores/socket'
 import { useRoomStore } from './stores/room'
 
 const URL = process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3000'
+// @ts-ignore
 export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> = io(URL, {
     autoConnect: false
 })
