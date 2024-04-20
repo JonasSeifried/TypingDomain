@@ -1,11 +1,14 @@
-import { io, Socket } from 'socket.io-client'
+import { io, Socket, type ManagerOptions, type SocketOptions } from 'socket.io-client'
 import type { ClientToServerEvents, ServerToCLientEvents } from 'shared'
 import { useSocketStore } from './stores/socket'
 import { useRoomStore } from './stores/room'
 
-export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> = io({
-    autoConnect: false
-})
+const opts: Partial<ManagerOptions & SocketOptions> = {
+    autoConnect: false,
+    path: '/api/socket'
+}
+export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> =
+    process.env.NODE_ENV === 'production' ? io(opts) : io('http://localhost:3000', opts)
 
 export function bindEvents() {
     useSocketStore().bindEvents()

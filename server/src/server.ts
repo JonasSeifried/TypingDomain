@@ -19,7 +19,7 @@ export const io = new Server<
   ServerToCLientEvents,
   {},
   SocketData
->(server, { cors: { origin: "*" } });
+>(server, { cors: { origin: "*" }, path: "/api/socket" });
 
 const rooms = new Rooms();
 
