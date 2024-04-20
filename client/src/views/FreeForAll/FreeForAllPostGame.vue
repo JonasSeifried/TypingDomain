@@ -2,6 +2,7 @@
 import { useRoomStore } from '@/stores/room'
 import type { ClientData } from 'shared'
 import { computed } from 'vue'
+import { calculateCorrectLetterCount, calculateCorrectWordCount } from 'shared/src/statistics'
 
 const roomStore = useRoomStore()
 
@@ -15,13 +16,9 @@ const sortedClientsStatistc = computed(() => {
 })
 
 function calculateStatistics(clientData: ClientData, roomText: string) {
-    const numCorrectWords = clientData.typedText
-        .split(' ')
-        .filter((word, index) => word === roomText.split(' ')[index]).length
+    const numCorrectWords = calculateCorrectWordCount(clientData.typedText, roomText)
     const numIncorrectWords = roomText.split(' ').length - numCorrectWords
-    const numCorrectLetters = clientData.typedText
-        .split('')
-        .filter((letter, index) => letter === roomText[index]).length
+    const numCorrectLetters = calculateCorrectLetterCount(clientData.typedText, roomText)
     const wordsPerMinute = numCorrectWords / (clientData.finishedAt / (1000 * 60))
     const lettersPerMinute = numCorrectLetters / (clientData.finishedAt / (1000 * 60))
     return {
