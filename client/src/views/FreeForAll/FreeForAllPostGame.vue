@@ -22,8 +22,8 @@ function calculateStatistics(clientData: ClientData, roomText: string) {
     const numCorrectLetters = clientData.typedText
         .split('')
         .filter((letter, index) => letter === roomText[index]).length
-    const wordsPerMinute = numCorrectWords / (clientData.finishedAt / 60)
-    const lettersPerMinute = numCorrectLetters / (clientData.finishedAt / 60)
+    const wordsPerMinute = numCorrectWords / (clientData.finishedAt / (1000 * 60))
+    const lettersPerMinute = numCorrectLetters / (clientData.finishedAt / (1000 * 60))
     return {
         numCorrectWords,
         numIncorrectWords,
