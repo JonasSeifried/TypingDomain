@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "pnpm --parallel --stream -r run dev"
+    "dev": "pnpm --parallel --stream -r run dev",
+    "preview": "IS_PREVIEW=true pnpm --parallel --stream run preview"
   },
 
   "keywords": [],
