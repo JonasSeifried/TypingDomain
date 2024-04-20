@@ -1,9 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from './views/HomePage.vue'
-import FreeForAll from './views/FreeForAll/FreeForAll.vue'
 import { useAuthStore } from './stores/auth'
-import FreeForAllLobby from './views/FreeForAll/FreeForAllLobby.vue'
-import AuthUser from './views/auth/AuthUser.vue'
 
 export const HomeRoute = '/'
 export const AuthUserRoute = '/auth'
@@ -11,10 +7,18 @@ export const FreeForAllLobbyRoute = '/ffa/lobby'
 export const FreeForAllRoomRoute = (roomId: string) => `/ffa/room/${roomId}`
 
 const routes = [
-    { path: HomeRoute, component: HomePage },
-    { path: AuthUserRoute, component: AuthUser },
-    { path: FreeForAllLobbyRoute, component: FreeForAllLobby, meta: { requiresAuth: true } },
-    { path: FreeForAllRoomRoute(':roomId'), component: FreeForAll, meta: { requiresAuth: true } }
+    { path: HomeRoute, component: () => import('./views/HomePage.vue') },
+    { path: AuthUserRoute, component: () => import('./views/auth/AuthUser.vue') },
+    {
+        path: FreeForAllLobbyRoute,
+        component: () => import('./views/FreeForAll/FreeForAllLobby.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: FreeForAllRoomRoute(':roomId'),
+        component: () => import('./views/FreeForAll/FreeForAll.vue'),
+        meta: { requiresAuth: true }
+    }
 ]
 
 export const router = createRouter({
