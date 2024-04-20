@@ -8,7 +8,9 @@ const opts: Partial<ManagerOptions & SocketOptions> = {
     path: '/api/socket'
 }
 export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> =
-    process.env.NODE_ENV === 'production' ? io(opts) : io('http://localhost:3000', opts)
+    process.env.NODE_ENV === 'production' && process.env.IS_PREVIEW === 'false'
+        ? io(opts)
+        : io('http://localhost:3000', opts)
 
 export function bindEvents() {
     useSocketStore().bindEvents()
