@@ -2,7 +2,7 @@
 import { socket } from '@/socket'
 import FreeForAllProgressBars from './FreeForAllProgressBars.vue'
 import { useRoomStore } from '@/stores/room'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const roomStore = useRoomStore()
 
@@ -41,6 +41,10 @@ function onDivClick() {
 function letterClass(letter: string, index: number): string {
     return letter === wholeText[index] ? 'letter_correct' : 'letter_incorrect'
 }
+
+onMounted(() => {
+    inputField.value?.focus()
+})
 </script>
 
 <template>
