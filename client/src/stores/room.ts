@@ -1,6 +1,6 @@
 import { socket } from '@/socket'
 import { defineStore } from 'pinia'
-import { GameState, type ClientData } from 'shared'
+import { type GameState, type ClientData } from 'shared'
 import { err, fromWebResult, ok, type Result } from 'shared/src/result'
 import { computed, ref } from 'vue'
 import { useAuthStore } from './auth'
@@ -10,7 +10,7 @@ export const useRoomStore = defineStore('room', () => {
     const isReady = ref<boolean>(false)
     const isSpectator = ref<boolean>(false)
     const isFinished = ref<boolean>(false)
-    const gameState = ref<GameState>(GameState.PREGAME)
+    const gameState = ref<GameState>(0 as GameState.PREGAME)
     const clientsInRoom = ref<ClientData[]>([])
     const textOfRoom = ref<string>('')
     const startCountdown = ref<number | undefined>(undefined)
@@ -59,15 +59,15 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     const isPreGame = computed(() => {
-        return gameState.value === GameState.PREGAME
+        return gameState.value === (0 as GameState.PREGAME)
     })
 
     const isInGame = computed(() => {
-        return gameState.value === GameState.INGAME
+        return gameState.value === (1 as GameState.INGAME)
     })
 
     const isPostGame = computed(() => {
-        return gameState.value === GameState.POSTGAME
+        return gameState.value === (2 as GameState.POSTGAME)
     })
 
     const isPlaying = computed(() => {

@@ -1,12 +1,14 @@
 {
   "name": "shared",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "version": "1.0.0",
   "description": "Shared code for typing-domain",
   "author": "Jonas Seifried",
   "license": "ISC",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc --build"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

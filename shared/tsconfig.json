@@ -3,8 +3,10 @@
     "outDir": "./dist",
     "target": "ESNext",
     "module": "CommonJS",
+    "declaration": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "isolatedModules": false
   },
   "include": ["src/**/*.ts"]
 }
