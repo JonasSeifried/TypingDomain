@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "pnpm --parallel --stream -r run dev",
     "preview": "IS_PREVIEW=true pnpm run test && pnpm --parallel --stream run preview",
-    "build": "pnpm --parallel --stream -r run build",
+    "build": "pnpm --stream -r run build",
     "test": "pnpm  --stream -r run test"
   },
   "keywords": [],
