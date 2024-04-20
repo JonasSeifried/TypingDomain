@@ -1,7 +1,7 @@
 import { socket } from '@/socket'
 import { defineStore } from 'pinia'
 import { GameState, type ClientData } from 'shared'
-import { err, fromWebResult, ok, type Result } from 'shared/result'
+import { err, fromWebResult, ok, type Result } from 'shared/src/result'
 import { computed, ref } from 'vue'
 import { useAuthStore } from './auth'
 

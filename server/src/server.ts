@@ -8,7 +8,7 @@ import {
     ServerToCLientEvents,
     SocketData
 } from 'shared'
-import { err, fromResult, ok, Result, webErr, webOk } from 'shared/result'
+import { err, fromResult, ok, Result, webErr, webOk } from 'shared/src/result'
 import { Rooms } from './rooms'
 
 const app = express()

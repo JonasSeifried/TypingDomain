@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getFirestore } from 'firebase/firestore'
-import { ensureError } from 'shared/result'
+import { ensureError } from 'shared/src/result'
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_APIKEY,

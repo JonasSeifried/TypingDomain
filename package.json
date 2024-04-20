@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "dev": "pnpm --parallel --stream -r run dev",
-    "preview": "IS_PREVIEW=true pnpm --parallel --stream run preview"
+    "preview": "IS_PREVIEW=true pnpm --parallel --stream run preview",
+    "test": "pnpm  --stream -r run test"
   },
   "keywords": [],
   "author": "",

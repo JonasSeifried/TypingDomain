@@ -9,7 +9,7 @@ import {
     setPersistence,
     browserLocalPersistence
 } from 'firebase/auth'
-import { ensureError, err, ok, type Result } from 'shared/result'
+import { ensureError, err, ok, type Result } from 'shared/src/result'
 
 const auth = getAuth()
 setPersistence(auth, browserLocalPersistence)
