@@ -2,7 +2,7 @@
 import { useRoomStore } from '@/stores/room'
 import type { ClientData } from 'shared'
 import { computed } from 'vue'
-import { calculateCorrectLetterCount, calculateCorrectWordCount } from 'shared/src/statistics'
+import { calculateCorrectLetterCount, calculateCorrectWordCount } from 'shared/statistics'
 
 const roomStore = useRoomStore()
 

@@ -1,5 +1,5 @@
 import { ClientData, GameState, RoomData } from 'shared'
-import { err, ok, Result } from 'shared/src/result'
+import { err, ok, Result } from 'shared/result'
 
 export class Rooms {
     private roomData: Map<string, RoomData> = new Map()

@@ -1,4 +1,4 @@
-import { calculateCorrectLetterCount, calculateCorrectWordCount } from '../src/statistics'
+import { calculateCorrectLetterCount, calculateCorrectWordCount } from '../statistics'
 import { describe, expect, test } from '@jest/globals'
 
 describe('calculateCorrectWordCount', () => {

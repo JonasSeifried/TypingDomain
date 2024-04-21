@@ -7,7 +7,7 @@ import {
     signOut as firebaseSignOut
 } from '@/firebase/firebaseAuth'
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth'
-import { err, ok, type Result } from 'shared/src/result'
+import { err, ok, type Result } from 'shared/result'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { fireStore } from '@/firebase/firebaseInitialization'
 import { HomeRoute } from '@/router'
