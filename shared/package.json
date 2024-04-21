@@ -6,8 +6,7 @@
   "author": "Jonas Seifried",
   "license": "ISC",
   "scripts": {
-    "test": "jest",
-    "build": "tsc --build"
+    "test": "jest"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
