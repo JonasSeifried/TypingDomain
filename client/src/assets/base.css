@@ -1,52 +1,17 @@
-/* color palette from <https://github.com/vuejs/theme> */
-:root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
-
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
-
-  --vt-c-indigo: #2c3e50;
-
-  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
-
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
-
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
-
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
-
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    --text: #420020;
+    --background: #ffffff;
+    --primary: #8d0243;
+    --secondary: #f9d2f6;
+    --accent: #00ff66;
+  }
+  .dark {
+    --text: #ffbddd;
+    --background: #000000;
+    --primary: #fd72b3;
+    --secondary: #2d062a;
+    --accent: #00ff66;
   }
 }
 
@@ -60,8 +25,8 @@
 
 body {
   min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
+  color: var(--text);
+  background: var(--background);
   transition:
     color 0.5s,
     background-color 0.5s;
@@ -89,14 +54,13 @@ body {
   width: 10rem;
   padding: 0.5rem;
   margin: 0.25rem;
-  background-color: white;
-  border: 3px solid lightgreen;
+  background-color: var(--primary);
   border-radius: 0.25rem;
-  color: black;
+  color: white;
 }
 .room-button:hover:not(:disabled) {
-  border-color: white;
-  background-color: lightgreen;
+  background-color: var(--secondary);
+  color: var(--text);
   scale: 1.05;
 }
 .room-button:disabled {
