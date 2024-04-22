@@ -8,10 +8,10 @@ const waitingFor = computed(() => {
     const notReady = roomStore.clientsInRoom.filter((client) => !client.isReady)
     const notReadyCount = notReady.length
     if (!roomStore.isReady && notReadyCount == 1)
-        return 'Ready up! <span class="text-pink-700">Everyone</span> is waiting for you!'
+        return 'Ready up! <span class="font-bold">Everyone</span> is waiting for you!'
     if (!roomStore.isReady) return 'Ready up!'
     const notReadyText = notReady
-        .reduce((acc, client) => acc + client.username + '  , ', '')
+        .reduce((acc, client) => acc + `<span class="font-bold">${client.username}</span>,`, '')
         .slice(0, -2)
     return `Waiting for ${notReadyText}`
 })
@@ -46,7 +46,7 @@ const waitingFor = computed(() => {
             <i
                 :class="[
                     'nf text-2xl',
-                    client.isReady ? 'nf-oct-check text-green-800' : 'nf-oct-x text-pink-700'
+                    client.isReady ? 'nf-oct-check text-accent' : 'nf-oct-x text-rose-600'
                 ]"
             ></i>
         </div>

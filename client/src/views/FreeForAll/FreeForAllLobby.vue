@@ -36,23 +36,29 @@ function validate() {
 <template>
     <div
         v-if="authStore.isSignedIn"
-        class="flex flex-col items-center w-1/2 h-64 mt-16 rounded-lg bg-zinc-800"
+        class="flex flex-col items-center w-1/2 h-64 mt-16 rounded-lg shadow-2xl bg-secondary/25 shadow-secondary/50"
     >
         <h2 class="m-4 text-2xl">Join or Create a Room</h2>
-        <div class="flex">
-            <div class="flex flex-col m-2">
-                <label for="roomId">Room Id</label>
-                <input
-                    id="roomId"
-                    @keypress.enter="onSubmit"
-                    class="p-2 text-black rounded-md"
-                    type="text"
-                    v-model="roomId"
-                />
-            </div>
+        <div class="flex flex-col m-2">
+            <label for="roomId">Room Id</label>
+            <input
+                id="roomId"
+                @keypress.enter="onSubmit"
+                class="w-full p-2 px-3 leading-tight transition-all rounded shadow outline-none appearance-none shadow-secondary bg-background/75 focus:shadow-lg focus:shadow-secondary"
+                type="text"
+                v-model="roomId"
+            />
         </div>
 
-        <p id="error-text" :hidden="!validatingError" class="text-red-500">{{ validatingError }}</p>
-        <button class="room-button" @click="onSubmit" :disabled="roomId === ''">Join Room</button>
+        <p id="error-text" :hidden="!validatingError" class="font-bold text-rose-600">
+            {{ validatingError }}
+        </p>
+        <button
+            class="p-3 px-8 transition-all rounded bg-primary text-secondary hover:shadow-primary/25 hover:scale-105 hover:translate-y-1 hover:shadow-2xl"
+            @click="onSubmit"
+            :disabled="roomId === ''"
+        >
+            Join Room
+        </button>
     </div>
 </template>

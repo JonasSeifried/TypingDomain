@@ -31,7 +31,6 @@ onBeforeMount(() => {
             Typing Domain
         </a>
         <div class="flex items-center justify-end h-full gap-4">
-            <ToggleColorScheme />
             <span class="text-right">{{ authStore.username }}</span>
         </div>
     </header>
@@ -39,5 +38,8 @@ onBeforeMount(() => {
         <div class="container flex flex-col items-center h-full">
             <RouterView />
         </div>
+        <ToggleColorScheme
+            class="absolute bottom-0 right-0 m-16 text-4xl transition-all hover:scale-105"
+        />
     </main>
 </template>

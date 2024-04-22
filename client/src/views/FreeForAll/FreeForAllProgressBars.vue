@@ -11,7 +11,7 @@ function buildUsername(username: string, socketId: string): string {
 
 function progressValue(typedText: string) {
     if (!roomStore.textOfRoom) return 0
-    return typedText.length / roomStore.textOfRoom.length
+    return (typedText.length / roomStore.textOfRoom.length) * 100
 }
 </script>
 
@@ -21,15 +21,15 @@ function progressValue(typedText: string) {
             <label :for="client.socketId" class="mr-4">{{
                 buildUsername(client.username, client.socketId)
             }}</label>
-            <progress
-                class="w-full h-4 rounded-lg dark:bg-gray-700"
-                :id="client.socketId"
-                type="range"
-                :max="roomStore.textOfRoom.length"
-                :value="client.typedText.length"
-            >
-                {{ progressValue(client.typedText) }}%
-            </progress>
+            <div class="w-full rounded-full bg-secondary" :id="client.socketId">
+                <div
+                    class="bg-accent p-0.5 leading-none rounded-full h-4"
+                    :class="[client.typedText.length === 0 ? 'invisible' : 'visible']"
+                    :style="{
+                        width: `${progressValue(client.typedText)}%`
+                    }"
+                ></div>
+            </div>
         </div>
     </div>
 </template>
