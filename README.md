@@ -7,4 +7,4 @@ Try it out at [TypingDomain](https://typingdomain.jonasseifried.com/).
 
 -   Install dependencies: `pnpm i`
 -   Run development servers: `pnpm dev`
--   Compile and start preview servers: `pnpm --shell-emulator preview`
+-   Compile and start preview servers: `pnpm preview`
