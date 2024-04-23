@@ -28,18 +28,14 @@ function onKeyUp() {
 }
 
 function calculateInputFieldClass(): string {
-    if (!inputField.value?.selectionStart) return 'caret-white'
+    if (!inputField.value?.selectionStart) return 'caret-text'
     return inputField.value.selectionStart - inputField.value.value.length == 0
         ? 'caret-transparent'
-        : 'caret-white'
+        : 'caret-text'
 }
 
 function onDivClick() {
     inputField.value?.focus()
-}
-
-function letterClass(letter: string, index: number): string {
-    return letter === wholeText[index] ? 'letter_correct' : 'letter_incorrect'
 }
 
 onMounted(() => {
@@ -55,7 +51,7 @@ onMounted(() => {
             v-if="roomStore.isPlaying"
             id="containerDiv"
             ref="containerDiv"
-            class="flex flex-row items-center justify-end w-1/2 h-32 p-8 text-4xl whitespace-pre rounded shadow-[0_5px_60px_15px_rgba(0,0,0,0.75)] shadow-black letter"
+            class="flex flex-row items-center justify-end w-1/2 h-32 p-8 text-4xl whitespace-pre rounded shadow-[0_5px_60px_15px_rgba(0,0,0,0.75)] shadow-secondary letter"
         >
             <div ref="parentDivOfTypedDivs" class="grid items-end w-1/2 h-fit">
                 <input
@@ -77,7 +73,9 @@ onMounted(() => {
                     <span
                         v-for="(item, index) in typedText"
                         :key="index"
-                        :class="letterClass(item, index)"
+                        :class="[
+                            item === wholeText[index] ? 'text-accent' : 'text-rose-600 underline'
+                        ]"
                     >
                         {{ item }}
                     </span>
@@ -95,12 +93,5 @@ onMounted(() => {
 }
 .letter {
     font-family: Hack, monospace;
-}
-.letter_correct {
-    color: rgb(30, 153, 30);
-}
-.letter_incorrect {
-    color: rgb(170, 26, 26);
-    text-decoration: underline;
 }
 </style>

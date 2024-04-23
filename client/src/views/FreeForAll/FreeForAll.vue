@@ -29,9 +29,8 @@ onUnmounted(() => roomStore.leaveRoom())
             roomStore.isInGame ? Math.round(roomStore.playTime / 1000) : roomStore.playTime / 1000
         }}s</span
     >
-    <div class="flex flex-col items-center w-full h-full">
-        <FreeForAllPreGame v-if="roomStore.isPreGame" />
-        <FreeForAllInGame v-if="roomStore.isInGame" />
-        <FreeForAllPostGame v-if="roomStore.isPostGame" />
-    </div>
+
+    <FreeForAllPreGame v-if="roomStore.isPreGame" />
+    <FreeForAllInGame v-if="roomStore.isInGame" />
+    <FreeForAllPostGame v-if="roomStore.isPostGame" />
 </template>
