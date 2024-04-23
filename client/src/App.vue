@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { socket, bindEvents } from './socket'
 import { useAuthStore } from './stores/auth'
 import { useSocketStore } from './stores/socket'
-import { useRouter } from 'vue-router'
 import { HomeRoute } from './router'
 import ToggleColorScheme from './components/ToggleColorScheme.vue'
 
 const authStore = useAuthStore()
 const connectionStore = useSocketStore()
-const router = useRouter()
 
 onBeforeMount(() => {
     socket.off()
@@ -27,9 +25,9 @@ onBeforeMount(() => {
         >
             Sign Out
         </button>
-        <a href="#" class="col-start-2 m-4 text-2xl text-center" @click="router.push(HomeRoute)">
+        <RouterLink :to="HomeRoute" class="col-start-2 m-4 text-2xl text-center">
             Typing Domain
-        </a>
+        </RouterLink>
         <div class="flex items-center justify-end h-full gap-4">
             <span class="text-right">{{ authStore.username }}</span>
         </div>
