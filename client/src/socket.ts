@@ -7,13 +7,12 @@ const opts: Partial<ManagerOptions & SocketOptions> = {
     autoConnect: false,
     path: '/api/socket'
 }
+
 export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> =
-    process.env.NODE_ENV === 'production' && process.env.IS_PREVIEW !== 'true'
-        ? io(opts)
-        : io('http://localhost:3000', opts)
+    import.meta.env.MODE == 'production' ? io(opts) : io('http://localhost:3000', opts)
 
 export function bindEvents() {
     useSocketStore().bindEvents()
     useRoomStore().bindEvents()
-    console.log('Events bound')
+    console.debug('Events bound')
 }

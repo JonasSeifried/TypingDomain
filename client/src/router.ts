@@ -31,7 +31,7 @@ router.beforeEach(async (to) => {
     await auth.authReady()
     if (to.meta.requiresAuth && !auth.isSignedIn) {
         auth.returnURL = to.fullPath
-        console.log('Redirecting to', AuthUserRoute)
+        console.debug('Redirecting to', AuthUserRoute)
         return AuthUserRoute
     }
 })
