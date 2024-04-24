@@ -1,9 +1,5 @@
-@import './base.css';
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-@import "https://www.nerdfonts.com/assets/css/webfont.css"
-
-
-
-
+@import "./base.css";
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import "https://www.nerdfonts.com/assets/css/webfont.css";
