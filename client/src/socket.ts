@@ -8,8 +8,10 @@ const opts: Partial<ManagerOptions & SocketOptions> = {
     path: '/api/socket'
 }
 
-export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> =
-    import.meta.env.MODE == 'production' ? io(opts) : io('http://localhost:3000', opts)
+export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> = io(
+    import.meta.env.VITE_API_URL,
+    opts
+)
 
 export function bindEvents() {
     useSocketStore().bindEvents()
