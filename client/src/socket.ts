@@ -5,7 +5,7 @@ import { useRoomStore } from './stores/room'
 
 const opts: Partial<ManagerOptions & SocketOptions> = {
     autoConnect: false,
-    path: '/api/socket'
+    path: '/socket'
 }
 
 export const socket: Socket<ServerToCLientEvents, ClientToServerEvents> = io(

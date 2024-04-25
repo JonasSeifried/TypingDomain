@@ -12,11 +12,16 @@ import { err, fromResult, ok, Result, webErr, webOk } from 'shared/result'
 import { Rooms } from './rooms'
 
 const app = express()
+
+app.get('/', (_, res) => {
+    res.sendStatus(200)
+})
+
 const server = createServer(app)
 
 export const io = new Server<ClientToServerEvents, ServerToCLientEvents, {}, SocketData>(server, {
     cors: { origin: '*' },
-    path: '/api/socket'
+    path: '/socket'
 })
 
 const rooms = new Rooms()
