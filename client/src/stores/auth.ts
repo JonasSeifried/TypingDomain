@@ -10,7 +10,7 @@ import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
 import { err, ok, type Result } from "shared/result";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { fireStore } from "@/firebase/firebaseInitialization";
-import { HomeRoute } from "@/router";
+// import { HomeRoute } from "@/router";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null | undefined>(undefined);
@@ -38,7 +38,7 @@ export const useAuthStore = defineStore("auth", () => {
     const res = await firebaseSignIn(name, password);
     if (res.isErr()) return res;
 
-    router.push(returnURL.value || HomeRoute);
+    // router.push(returnURL.value || HomeRoute);
     return ok();
   }
 
@@ -47,7 +47,7 @@ export const useAuthStore = defineStore("auth", () => {
     if (isSignedIn.value) return err(new Error("Cannot sign in as guest when already signed in"));
     username.value = guestUsername;
     signedInAsGuest.value = true;
-    router.push(returnURL.value || HomeRoute);
+    // router.push(returnURL.value || HomeRoute);
     return ok();
   }
 
@@ -55,7 +55,7 @@ export const useAuthStore = defineStore("auth", () => {
     const res = await firebaseSignUp(username, email, password);
     if (res.isErr()) return res;
 
-    router.push(returnURL.value || HomeRoute);
+    // router.push(returnURL.value || HomeRoute);
     return ok();
   }
 
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore("auth", () => {
       const res = await firebaseSignOut();
       if (res.isErr()) return res;
     }
-    router.push(HomeRoute);
+    // router.push(HomeRoute);
     return ok();
   }
 

@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useRoomStore } from "@/stores/room";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { FreeForAllRoomRoute } from "@/router";
+// import { FreeForAllRoomRoute } from "@/router";
 
 const validatingError = ref("");
 const roomId = ref(socket.id!);
@@ -20,7 +20,7 @@ function onSubmit() {
       console.error(res.error);
       return;
     }
-    router.push(FreeForAllRoomRoute(roomId.value));
+    // router.push(FreeForAllRoomRoute(roomId.value));
   });
 }
 
