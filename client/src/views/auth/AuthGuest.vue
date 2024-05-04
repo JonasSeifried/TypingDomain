@@ -34,3 +34,4 @@ async function signInAsGuest() {
     </button>
   </div>
 </template>
+@/services/auth

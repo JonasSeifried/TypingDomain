@@ -66,3 +66,4 @@ function calculateStatistics(clientData: ClientData, roomText: string) {
     </tr>
   </table>
 </template>
+@/services/room

@@ -10,3 +10,4 @@ const roomStore = useRoomStore();
   <FreeForAllReady />
   <CountDown v-if="roomStore.isPreGame && roomStore.startCountdown" :time="roomStore.startCountdown" />
 </template>
+@/services/room

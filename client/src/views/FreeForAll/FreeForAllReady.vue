@@ -41,3 +41,4 @@ const waitingFor = computed(() => {
     </div>
   </div>
 </template>
+@/services/room

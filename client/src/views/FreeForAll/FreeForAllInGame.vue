@@ -91,3 +91,4 @@ onMounted(() => {
   font-family: Hack, monospace;
 }
 </style>
+@/services/room

@@ -32,3 +32,4 @@ onUnmounted(() => roomStore.leaveRoom());
   <FreeForAllInGame v-if="roomStore.isInGame" />
   <FreeForAllPostGame v-if="roomStore.isPostGame" />
 </template>
+@/services/room

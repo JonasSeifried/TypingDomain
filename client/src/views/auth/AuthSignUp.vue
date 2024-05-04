@@ -58,3 +58,4 @@ async function trySignUp() {
     </button>
   </div>
 </template>
+@/services/auth

@@ -49,3 +49,4 @@ async function trySignIn() {
     </button>
   </div>
 </template>
+@/services/auth

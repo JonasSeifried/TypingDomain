@@ -31,3 +31,4 @@ function progressValue(typedText: string) {
     </div>
   </div>
 </template>
+@/services/room
