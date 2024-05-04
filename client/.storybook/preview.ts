@@ -1,4 +1,8 @@
 import type { Preview } from "@storybook/vue3";
+import "../src/tailwind.css"
+
+import { withThemeByDataAttribute } from "@storybook/addon-themes";
+import { withThemeByClassName } from "@storybook/addon-themes";
 
 const preview: Preview = {
   parameters: {
@@ -9,6 +13,14 @@ const preview: Preview = {
       },
     },
   },
+
+  decorators: [withThemeByClassName({
+      themes: {
+          light: 'light',
+          dark: 'dark',
+      },
+      defaultTheme: 'light',
+  })]
 };
 
 export default preview;
