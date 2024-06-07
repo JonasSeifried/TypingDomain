@@ -10,6 +10,7 @@ import {
 } from 'shared'
 import { err, fromResult, ok, Result, webErr, webOk } from 'shared/result'
 import { Rooms } from './rooms'
+import racing_texts from './racing_texts.json'
 
 const app = express()
 
@@ -181,13 +182,9 @@ function startRoomCountDown(roomId: string) {
         io.to(roomId).emit('roomStartRoundCountDown', delta / 1000)
         if (delta <= 0) {
             clearInterval(interval)
-            rooms.setRoomText(
-                roomId,
-                "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
-            )
+            rooms.setRoomText(roomId, getRandomText())
             rooms.startGame(roomId)
             startRoomPlayTimer(roomId)
-            return
         }
     }, 10)
 }
@@ -196,4 +193,8 @@ function leaveAllRooms(socket: Socket) {
     socket.rooms.forEach((room) => {
         socket.leave(room)
     })
+}
+
+function getRandomText() {
+    return racing_texts[Math.floor(Math.random() * racing_texts.length)]
 }

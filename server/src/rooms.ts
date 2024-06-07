@@ -35,6 +35,7 @@ export class Rooms {
         this.socketIdsToRooms.set(socketId, roomId)
         this.emitClientDataChangedEvent(roomId)
         this.emitRoomDataChangedEvent(roomId)
+        return ok()
     }
 
     public leaveRoom(roomId: string, socketId: string): Result<boolean> {
@@ -53,8 +54,9 @@ export class Rooms {
         if (result.isErr()) return result
         const room = result.value
         if (!room.players.has(socketId)) return err(Error('User is not a player'))
-        room.players.get(socketId).isReady = ready
+        room.players.get(socketId)!.isReady = ready
         this.emitClientDataChangedEvent(room.id)
+        return ok()
     }
 
     public setTextOfPlayer(socketId: string, text: string): Result<void> {
@@ -62,9 +64,10 @@ export class Rooms {
         if (result.isErr()) return result
         const room = result.value
         if (!room.players.has(socketId)) return err(Error('User is not a player'))
-        if (room.players.get(socketId).isFinished) return err(Error('User is already finished'))
-        room.players.get(socketId).typedText = text
+        if (room.players.get(socketId)!.isFinished) return err(Error('User is already finished'))
+        room.players.get(socketId)!.typedText = text
         this.emitClientDataChangedEvent(room.id)
+        return ok()
     }
 
     public setPlayerFinished(socketId: string): Result<void> {
@@ -72,11 +75,12 @@ export class Rooms {
         if (result.isErr()) return result
         const room = result.value
         if (!room.players.has(socketId)) throw new Error('User is not a player')
-        room.players.get(socketId).isFinished = true
+        room.players.get(socketId)!.isFinished = true
         const resultRoomTime = this.getRoomPlayTime(room.id)
         if (resultRoomTime.isErr()) return resultRoomTime
-        room.players.get(socketId).finishedAt = resultRoomTime.value
+        room.players.get(socketId)!.finishedAt = resultRoomTime.value
         this.emitClientDataChangedEvent(room.id)
+        return ok()
     }
 
     public allPlayersFinished(roomId: string): Result<boolean> {
@@ -111,6 +115,7 @@ export class Rooms {
         }
         result.value.gameState = GameState.INGAME
         this.emitRoomDataChangedEvent(roomId)
+        return ok()
     }
 
     public endGame(roomId: string): Result<void> {
@@ -118,6 +123,7 @@ export class Rooms {
         if (result.isErr()) return result
         result.value.gameState = GameState.POSTGAME
         this.emitRoomDataChangedEvent(roomId)
+        return ok()
     }
 
     public roomReady(roomId: string): Result<boolean> {
@@ -154,6 +160,7 @@ export class Rooms {
         if (result.isErr()) return result
         result.value.text = text
         this.emitRoomDataChangedEvent(roomId)
+        return ok()
     }
 
     public setRoomPlayTime(roomId: string, time: number): Result<void> {
@@ -161,6 +168,7 @@ export class Rooms {
         if (result.isErr()) return result
         result.value.playTime = time
         // ? This should probably emitRoomDataChangedEvent but that would result in alot of socket events
+        return ok()
     }
 
     public getRoomPlayTime(roomId: string): Result<number> {
@@ -169,11 +177,11 @@ export class Rooms {
         return ok(result.value.playTime)
     }
 
-    public onCliendDataChanged(func: (roomID) => void): void {
+    public onCliendDataChanged(func: (roomId: string) => void): void {
         this.onClientDataChangedEventHandlers.push(func)
     }
 
-    public onRoomDataChanged(func: (roomID) => void): void {
+    public onRoomDataChanged(func: (roomId: string) => void): void {
         this.onRoomDataChangedEventHandlers.push(func)
     }
 

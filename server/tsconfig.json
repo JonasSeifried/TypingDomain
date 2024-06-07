@@ -5,6 +5,8 @@
     "module": "CommonJS",
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": true,
   },
   "include": ["src/**/*.ts", "node_modules/shared/*.ts"]
 }
